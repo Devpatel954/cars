@@ -1,8 +1,26 @@
 import express from "express";
-import "dotenv/config";
+import dotenv from "dotenv";
 import cors from "cors";
 import fs from "fs";
 import path from "path";
+import { fileURLToPath } from "url";
+
+// Load environment variables from .env file
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const envPath = path.join(__dirname, '.env');
+console.log('Current working directory:', process.cwd());
+console.log('Loading .env from:', envPath);
+console.log('.env file exists:', fs.existsSync(envPath));
+const result = dotenv.config({ path: envPath });
+if (result.error) {
+  console.error('Error loading .env:', result.error.message);
+} else {
+  console.log('Successfully loaded .env file');
+  console.log('MONGODB_URI loaded:', !!process.env.MONGODB_URI);
+  console.log('JWT_SECRET loaded:', !!process.env.JWT_SECRET);
+}
+
 import connectDB from "./configs/db.js";
 import userRouter from "./routes/userRoutes.js";
 import ownerRouter from "./routes/ownerroutes.js";
