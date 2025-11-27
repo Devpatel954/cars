@@ -4,7 +4,7 @@
   "description": "Car Rental Application",
   "main": "server/server.js",
   "engines": {
-    "node": "18.x"
+    "node": "24.x"
   },
   "scripts": {
     "start": "bash start-server.sh",
