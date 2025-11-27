@@ -1,12 +1,12 @@
-import React from 'react'
+import React, { useState } from 'react'
 
-const Login = ({setShowLogin}) => {
-    const [state, setState] = React.useState("login");
-    const [name, setName] = React.useState("");
-    const [email, setEmail] = React.useState("");
-    const [password, setPassword] = React.useState("");
-    const [loading, setLoading] = React.useState(false);
-    const [error, setError] = React.useState("");
+const Login = ({ setShowLogin }) => {
+    const [state, setState] = useState("login");
+    const [name, setName] = useState("");
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState("");
 
     const onSubmitHandler = async (e) => {
         e.preventDefault()
@@ -22,6 +22,7 @@ const Login = ({setShowLogin}) => {
             const res = await fetch(endpoint, {
                 method: "POST",
                 headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
                 body: JSON.stringify({ 
                     ...(state === "register" && { name }),
                     email, 
@@ -34,11 +35,11 @@ const Login = ({setShowLogin}) => {
                 // Only log in after successful login, not after registration
                 if (state === "login") {
                     try {
-                        window.localStorage.setItem('token', data.token)
-                        window.localStorage.setItem('user', JSON.stringify(data.user || { email }))
+                        localStorage.setItem('token', data.token)
+                        localStorage.setItem('user', JSON.stringify(data.user || { email }))
                         window.dispatchEvent(new Event('authChange'))
                     } catch (e) {
-                        // ignore
+                        console.error('Storage error:', e)
                     }
                     setShowLogin(false)
                     alert("Login successful!")
@@ -55,51 +56,127 @@ const Login = ({setShowLogin}) => {
             }
         } catch (err) {
             setError("Network error: " + err.message)
+            console.error('Login error:', err)
         } finally {
             setLoading(false)
         }
     }
-  return (
-    <div onClick = {()=>setShowLogin(false)}className='fixed top-0 bottom-0 left-0 right-0 z-100 flex items-center text-sm tex-gray-600 bg-black/50'>
 
-<form onSubmit={onSubmitHandler} onClick = {(e)=>e.stopPropagation()} className="flex flex-col gap-4 m-auto items-start p-8 py-12 w-80 sm:w-[352px] text-gray-500 rounded-lg shadow-xl border border-gray-200 bg-white">
-            <p className="text-2xl font-medium m-auto">
-                <span className="text-indigo-500">User</span> {state === "login" ? "Login" : "Sign Up"}
-            </p>
-            {state === "register" && (
-                <div className="w-full">
-                    <p>Name</p>
-                    <input onChange={(e) => setName(e.target.value)} value={name} placeholder="type here" className="border border-gray-200 rounded w-full p-2 mt-1 outline-indigo-500" type="text" required />
+    const handleClose = () => {
+        setShowLogin(false)
+        setError("")
+    }
+
+    return (
+        <div 
+            onClick={handleClose}
+            className='fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4'
+        >
+            <form 
+                onSubmit={onSubmitHandler} 
+                onClick={(e) => e.stopPropagation()} 
+                className="flex flex-col gap-4 w-full max-w-sm sm:max-w-md p-6 sm:p-8 text-gray-500 rounded-lg shadow-xl border border-gray-200 bg-white"
+            >
+                <div className="text-center mb-2">
+                    <p className="text-2xl sm:text-3xl font-medium">
+                        <span className="text-indigo-500">User</span> {state === "login" ? "Login" : "Sign Up"}
+                    </p>
                 </div>
-            )}
-            <div className="w-full ">
-                <p>Email</p>
-                <input onChange={(e) => setEmail(e.target.value)} value={email} placeholder="type here" className="border border-gray-200 rounded w-full p-2 mt-1 outline-indigo-500" type="email" required />
-            </div>
-            <div className="w-full ">
-                <p>Password</p>
-                <input onChange={(e) => setPassword(e.target.value)} value={password} placeholder="type here" className="border border-gray-200 rounded w-full p-2 mt-1 outline-indigo-500" type="password" required />
-            </div>
-            {state === "register" ? (
-                <p>
-                    Already have account? <span onClick={() => setState("login")} className="text-indigo-500 cursor-pointer">click here</span>
-                </p>
-            ) : (
-                <p>
-                    Create an account? <span onClick={() => setState("register")} className="text-indigo-500 cursor-pointer">click here</span>
-                </p>
-            )}
-            {error && <p className="text-red-500 text-xs">{error}</p>}
-            <button disabled={loading} className="bg-indigo-500 hover:bg-indigo-600 transition-all text-white w-full py-2 rounded-md cursor-pointer disabled:opacity-50">
-                {loading ? "Loading..." : (state === "register" ? "Create Account" : "Login")}
-            </button>
-        </form>
 
+                {state === "register" && (
+                    <div className="w-full">
+                        <label className="block text-sm font-medium text-gray-600 mb-1">Name</label>
+                        <input 
+                            onChange={(e) => setName(e.target.value)} 
+                            value={name} 
+                            placeholder="Enter your name" 
+                            className="border border-gray-200 rounded w-full p-2.5 outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-300 transition-all" 
+                            type="text" 
+                            required 
+                        />
+                    </div>
+                )}
 
+                <div className="w-full">
+                    <label className="block text-sm font-medium text-gray-600 mb-1">Email</label>
+                    <input 
+                        onChange={(e) => setEmail(e.target.value)} 
+                        value={email} 
+                        placeholder="Enter your email" 
+                        className="border border-gray-200 rounded w-full p-2.5 outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-300 transition-all" 
+                        type="email" 
+                        required 
+                    />
+                </div>
 
+                <div className="w-full">
+                    <label className="block text-sm font-medium text-gray-600 mb-1">Password</label>
+                    <input 
+                        onChange={(e) => setPassword(e.target.value)} 
+                        value={password} 
+                        placeholder="Enter your password" 
+                        className="border border-gray-200 rounded w-full p-2.5 outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-300 transition-all" 
+                        type="password" 
+                        required 
+                    />
+                </div>
 
-    </div>
-  )
+                {error && (
+                    <div className="bg-red-50 border border-red-200 text-red-700 px-3 py-2 rounded text-sm">
+                        {error}
+                    </div>
+                )}
+
+                <button 
+                    disabled={loading} 
+                    className="bg-indigo-500 hover:bg-indigo-600 disabled:bg-indigo-400 transition-all text-white w-full py-2.5 rounded-lg cursor-pointer font-medium disabled:opacity-75"
+                >
+                    {loading ? "Processing..." : (state === "register" ? "Create Account" : "Login")}
+                </button>
+
+                <div className="text-center text-sm">
+                    {state === "register" ? (
+                        <p>
+                            Already have account? {' '}
+                            <span 
+                                onClick={() => {
+                                    setState("login")
+                                    setError("")
+                                    setEmail("")
+                                    setPassword("")
+                                    setName("")
+                                }} 
+                                className="text-indigo-500 cursor-pointer hover:underline font-medium"
+                            >
+                                Login here
+                            </span>
+                        </p>
+                    ) : (
+                        <p>
+                            Don't have account? {' '}
+                            <span 
+                                onClick={() => {
+                                    setState("register")
+                                    setError("")
+                                }} 
+                                className="text-indigo-500 cursor-pointer hover:underline font-medium"
+                            >
+                                Sign up here
+                            </span>
+                        </p>
+                    )}
+                </div>
+
+                <button
+                    type="button"
+                    onClick={handleClose}
+                    className="text-gray-500 hover:text-gray-700 text-sm mt-2 text-center w-full"
+                >
+                    Close
+                </button>
+            </form>
+        </div>
+    )
 }
 
 export default Login
