@@ -68,29 +68,31 @@ const Cars = () => {
       </div>
 
       {/* Results */}
-      <div className="px-6 md:px-16 lg:px-24 xl:px-32 mt-10 max-w-7xl mx-auto">
-        {loading ? (
-          <p className="text-center text-gray-500">Loading cars...</p>
-        ) : (
-          <>
-            <p className="text-sm text-gray-600">
-              Showing <span className="font-medium">{filteredCars.length}</span> of{' '}
-              <span className="font-medium">{cars.length}</span> cars
-            </p>
+      <div className="w-full mt-10">
+        <div className="px-4 sm:px-6 md:px-8 lg:px-12 max-w-7xl mx-auto">
+          {loading ? (
+            <p className="text-center text-gray-500">Loading cars...</p>
+          ) : (
+            <>
+              <p className="text-sm text-gray-600 mb-6">
+                Showing <span className="font-medium">{filteredCars.length}</span> of{' '}
+                <span className="font-medium">{cars.length}</span> cars
+              </p>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 mt-4">
-              {filteredCars.map((car, index) => (
-                <Carcard key={car._id || index} car={car} />
-              ))}
-            </div>
-
-            {filteredCars.length === 0 && (
-              <div className="text-center text-gray-500 py-12">
-                No cars match "{query}". Try a different search.
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
+                {filteredCars && filteredCars.length > 0 ? (
+                  filteredCars.map((car, index) => (
+                    <Carcard key={car._id || index} car={car} />
+                  ))
+                ) : (
+                  <div className="col-span-full text-center text-gray-500 py-12">
+                    No cars match "{query}". Try a different search.
+                  </div>
+                )}
               </div>
-            )}
-          </>
-        )}
+            </>
+          )}
+        </div>
       </div>
     </div>
   )
