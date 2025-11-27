@@ -12,13 +12,15 @@ const Cars = () => {
     const fetchCars = async () => {
       try {
         setLoading(true)
-        const res = await fetch('http://localhost:3020/api/owner/cars')
+        const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3020'
+        const res = await fetch(`${apiUrl}/api/owner/cars`)
         const data = await res.json()
         if (data.success) {
           setCars(data.cars || [])
         }
       } catch (error) {
         console.error('Error fetching cars:', error)
+        setCars([])
       } finally {
         setLoading(false)
       }

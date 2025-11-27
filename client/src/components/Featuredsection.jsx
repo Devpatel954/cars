@@ -11,13 +11,15 @@ const [cars, setCars] = useState([])
 useEffect(() => {
   const fetchCars = async () => {
     try {
-      const res = await fetch('http://localhost:3020/api/owner/cars')
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3020'
+      const res = await fetch(`${apiUrl}/api/owner/cars`)
       const data = await res.json()
       if (data.success) {
         setCars(data.cars ? data.cars.slice(0, 6) : [])
       }
     } catch (error) {
       console.error('Error fetching cars:', error)
+      setCars([])
     }
   }
   fetchCars()

@@ -16,12 +16,12 @@ export const registerUser = async (req, res) => {
         const { name, email, password } = req.body;
 
         if (!name || !email || !password || password.length < 8) {
-            return res.status(400).json({ message: 'Invalid input' });
+            return res.status(400).json({ success: false, message: 'Invalid input - name, email, and password (min 8 chars) required' });
         }
 
         const userExists = await User.findOne({ email });
         if (userExists) {
-            return res.status(400).json({ message: 'User already exists' });
+            return res.status(400).json({ success: false, message: 'User already exists' });
         }
 
         const hashedPassword = await bcrypt.hash(password, 10);
@@ -33,15 +33,11 @@ export const registerUser = async (req, res) => {
 
         const token = generateToken(user._id.toString());
 
-        res.json({success:true,token});
+        res.json({ success: true, token, user: { email: user.email, name: user.name } });
 
-
-        
     } catch (error) {
-
-        console.log(error.message);
-        res.status(500).json({ message: 'Server error' });
-        
+        console.log('Registration error:', error);
+        res.status(500).json({ success: false, message: 'Server error: ' + error.message });
     }
 }
 
@@ -52,17 +48,17 @@ export const loginUser = async (req, res) => {
         const user = await User.findOne({ email });
 
         if (!user) {
-            return res.status(400).json({ message: 'Invalid credentials' });
+            return res.status(400).json({ success: false, message: 'Invalid credentials' });
         }
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
-            return res.status(400).json({ message: 'Invalid credentials' });
+            return res.status(400).json({ success: false, message: 'Invalid credentials' });
         }
         const token = generateToken(user._id.toString());
-        res.json({ success: true, token });
+        res.json({ success: true, token, user: { email: user.email, name: user.name } });
     } catch (error) {
-        console.log(error.message);
-        res.status(500).json({ message: 'Server error' });
+        console.log('Login error:', error);
+        res.status(500).json({ success: false, message: 'Server error: ' + error.message });
     }
 }
 

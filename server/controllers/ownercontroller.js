@@ -1,6 +1,7 @@
 import fs from "fs";
 import User from "../models/User.js";
 import Car from "../models/Car.js";
+import Booking from "../models/Booking.js";
 
 export const changeroletoowner = async(req,res)=>{
     try {
@@ -89,6 +90,25 @@ export const deletecar = async(req,res)=>{
         }
         await Car.findByIdAndDelete(id);
         res.json({success:true,message:'Car deleted'});
+    } catch (error) {
+        console.log(error.message);
+        res.status(500).json({ message: 'Server error' });
+    }
+}
+
+export const getOwnerBookings = async(req,res)=>{
+    try {
+        const {_id} = req.user;
+        // Get all cars owned by this user
+        const ownerCars = await Car.find({owner: _id});
+        const carIds = ownerCars.map(car => car._id);
+        
+        // Get all bookings for those cars
+        const bookings = await Booking.find({car: {$in: carIds}})
+            .populate('car')
+            .populate('user', 'name email');
+        
+        res.json({success:true,bookings});
     } catch (error) {
         console.log(error.message);
         res.status(500).json({ message: 'Server error' });

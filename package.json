@@ -1,0 +1,13 @@
+{
+  "name": "carrentalapp",
+  "version": "1.0.0",
+  "description": "Car Rental Application",
+  "main": "server/server.js",
+  "scripts": {
+    "start": "cd server && npm start",
+    "dev": "cd server && npm run server"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

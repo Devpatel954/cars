@@ -17,7 +17,8 @@ const Cardetails = () => {
   useEffect(() => {
     const fetchCar = async () => {
       try {
-        const res = await fetch(`http://localhost:3020/api/owner/cars/${id}`)
+        const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3020'
+        const res = await fetch(`${apiUrl}/api/owner/cars/${id}`)
         const data = await res.json()
         if (data.success) {
           setCar(data.car)
@@ -41,6 +42,7 @@ const Cardetails = () => {
     }
 
     const token = localStorage.getItem('token')
+    console.log('🔑 Token:', token ? 'Present' : 'Missing')
     if (!token) {
       navigate('/login')
       return
@@ -48,29 +50,38 @@ const Cardetails = () => {
 
     try {
       setSubmitting(true)
-      const res = await fetch('http://localhost:3020/api/booking/create', {
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3020'
+      const payload = {
+        carId: id,
+        pickupDate,
+        returnDate
+      }
+      console.log('📤 Sending booking:', payload)
+      
+      const res = await fetch(`${apiUrl}/api/booking/create`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify({
-          carId: id,
-          pickupDate,
-          returnDate
-        })
+        body: JSON.stringify(payload)
       })
 
       const data = await res.json()
+      console.log('📥 Response:', data)
+      
       if (data.success) {
         alert('Booking confirmed!')
-        navigate('/mybookings')
+        // Wait a moment for backend to fully persist, then navigate
+        setTimeout(() => {
+          navigate('/bookings')
+        }, 500)
       } else {
         alert('Booking failed: ' + (data.message || 'Unknown error'))
       }
     } catch (error) {
-      console.error('Error booking:', error)
-      alert('Booking error')
+      console.error('🔴 Error booking:', error)
+      alert('Booking error: ' + error.message)
     } finally {
       setSubmitting(false)
     }
@@ -198,7 +209,11 @@ const Cardetails = () => {
           <button
             type="submit"
             disabled={submitting}
-            className="w-full bg-primary hover:bg-primary-dull transition-all py-3 font-medium text-white rounded-xl cursor-pointer disabled:opacity-50"
+            style={{
+              backgroundColor: submitting ? '#1F58D8' : '#2563EB',
+              opacity: submitting ? 0.5 : 1
+            }}
+            className="w-full hover:bg-blue-700 transition-all py-3 font-medium text-white rounded-xl cursor-pointer"
           >
             {submitting ? 'Booking...' : 'Book now'}
           </button>

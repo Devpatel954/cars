@@ -14,9 +14,10 @@ const Login = ({setShowLogin}) => {
         setLoading(true)
 
         try {
+            const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3020'
             const endpoint = state === "login" 
-                ? "http://localhost:3020/api/user/login"
-                : "http://localhost:3020/api/user/register"
+                ? `${apiUrl}/api/user/login`
+                : `${apiUrl}/api/user/register`
 
             const res = await fetch(endpoint, {
                 method: "POST",
@@ -30,10 +31,25 @@ const Login = ({setShowLogin}) => {
 
             const data = await res.json()
             if (data.success) {
-                localStorage.setItem('token', data.token)
-                localStorage.setItem('user', JSON.stringify(data.user || { email }))
-                setShowLogin(false)
-                alert(state === "login" ? "Login successful!" : "Account created!")
+                // Only log in after successful login, not after registration
+                if (state === "login") {
+                    try {
+                        window.localStorage.setItem('token', data.token)
+                        window.localStorage.setItem('user', JSON.stringify(data.user || { email }))
+                        window.dispatchEvent(new Event('authChange'))
+                    } catch (e) {
+                        // ignore
+                    }
+                    setShowLogin(false)
+                    alert("Login successful!")
+                } else {
+                    // After registration, ask user to login
+                    alert("Account created! Please login with your credentials.")
+                    setState("login")
+                    setEmail("")
+                    setPassword("")
+                    setName("")
+                }
             } else {
                 setError(data.message || "Something went wrong")
             }

@@ -116,7 +116,8 @@ const AddCar = () => {
       }
 
       // POST to backend
-      const res = await fetch("http://localhost:3020/api/owner/add-car", {
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3020'
+      const res = await fetch(`${apiUrl}/api/owner/add-car`, {
         method: "POST",
         headers: {
           'Authorization': `Bearer ${token}`
