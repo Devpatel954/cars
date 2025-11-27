@@ -85,7 +85,7 @@ try {
       transmission_type: 'Automatic', 
       price_pday: 50, 
       location: 'New York',
-      image: 'https://images.unsplash.com/photo-1621007947382-bb3c3994e3fb?w=500&h=400&fit=crop'
+      image: '/src/assets/car_image1.png'
     },
     { 
       brand: 'Honda', 
@@ -97,7 +97,7 @@ try {
       transmission_type: 'Automatic', 
       price_pday: 55, 
       location: 'Los Angeles',
-      image: 'https://images.unsplash.com/photo-1590362891990-f8ddb41d3fe1?w=500&h=400&fit=crop'
+      image: '/src/assets/car_image2.png'
     },
     { 
       brand: 'BMW', 
@@ -109,7 +109,7 @@ try {
       transmission_type: 'Automatic', 
       price_pday: 150, 
       location: 'Chicago',
-      image: 'https://images.unsplash.com/photo-1606611013016-969c19f27081?w=500&h=400&fit=crop'
+      image: '/src/assets/car_image1.png'
     },
     { 
       brand: 'Audi', 
@@ -121,7 +121,7 @@ try {
       transmission_type: 'Automatic', 
       price_pday: 120, 
       location: 'Houston',
-      image: 'https://images.unsplash.com/photo-1606611013016-969c19f27081?w=500&h=400&fit=crop'
+      image: '/src/assets/car_image3.png'
     },
     { 
       brand: 'Mercedes', 
@@ -133,7 +133,7 @@ try {
       transmission_type: 'Automatic', 
       price_pday: 180, 
       location: 'Miami',
-      image: 'https://images.unsplash.com/photo-1603584173870-7f3229def826?w=500&h=400&fit=crop'
+      image: '/src/assets/car_image4.png'
     },
     { 
       brand: 'Hyundai', 
@@ -145,7 +145,7 @@ try {
       transmission_type: 'Automatic', 
       price_pday: 70, 
       location: 'Boston',
-      image: 'https://images.unsplash.com/photo-1605559424843-9e4c3dec1806?w=500&h=400&fit=crop'
+      image: '/src/assets/car_image2.png'
     }
   ]
   
