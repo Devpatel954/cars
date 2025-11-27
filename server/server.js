@@ -12,7 +12,9 @@ import User from './models/User.js'
 
 const app = express()
 
+console.log('Connecting to MongoDB...')
 await connectDB()
+console.log('MongoDB connection established, starting server initialization...')
 
 // Seed sample cars
 try {
