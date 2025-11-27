@@ -198,7 +198,9 @@ app.get('/health', (req, res) => {
 });
 
 // Serve static files from client assets
-app.use('/src/assets', express.static(path.join(process.cwd(), '../client/src/assets')))
+const assetsPath = path.resolve(path.join(__dirname, '../client/src/assets'));
+console.log('Serving static assets from:', assetsPath);
+app.use('/src/assets', express.static(assetsPath))
 
 app.get('/',(req,res)=>res.send("server is running"))
 
