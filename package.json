@@ -3,9 +3,13 @@
   "version": "1.0.0",
   "description": "Car Rental Application",
   "main": "server/server.js",
+  "engines": {
+    "node": "18.x"
+  },
   "scripts": {
-    "start": "cd server && npm start",
-    "dev": "cd server && npm run server"
+    "start": "cd server && npm install && npm start",
+    "dev": "cd server && npm run server",
+    "build": "cd server && npm install"
   },
   "keywords": [],
   "author": "",
