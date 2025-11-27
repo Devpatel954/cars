@@ -13,10 +13,10 @@ const Carcard = ({ car }) => {
         navigate(`/car-details/${car._id}`)
         window.scrollTo(0, 0)
       }}
-      className='group relative bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 cursor-pointer transform hover:-translate-y-2'
+      className='group relative bg-white dark:bg-dark-800 rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 cursor-pointer transform hover:-translate-y-2'
     >
       {/* Image Container */}
-      <div className='relative aspect-[16/9] overflow-hidden bg-gray-100'>
+      <div className='relative aspect-[16/9] overflow-hidden bg-gray-100 dark:bg-dark-700'>
         <img
           src={car.image || 'https://via.placeholder.com/400x225'}
           alt={`${car.brand} ${car.model}`}
@@ -43,44 +43,44 @@ const Carcard = ({ car }) => {
       {/* Content */}
       <div className='p-5 sm:p-6'>
         {/* Title */}
-        <h3 className='text-xl font-bold text-dark-900 mb-2 group-hover:text-primary-600 transition-colors'>
+        <h3 className='text-xl font-bold text-dark-900 dark:text-white mb-2 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors'>
           {car.brand} {car.model}
         </h3>
         <div className='flex items-center gap-2 mb-4'>
-          <span className='text-sm text-gray-600'>{car.year}</span>
-          <span className='text-gray-300'>•</span>
-          <span className='text-sm text-gray-600'>{car.category}</span>
+          <span className='text-sm text-gray-600 dark:text-gray-400'>{car.year}</span>
+          <span className='text-gray-300 dark:text-gray-600'>•</span>
+          <span className='text-sm text-gray-600 dark:text-gray-400'>{car.category}</span>
         </div>
 
         {/* Features Grid */}
         <div className='grid grid-cols-2 gap-3 mb-4'>
           {/* Seats */}
-          <div className='flex items-center gap-2 text-sm text-gray-700 bg-gray-50 p-2.5 rounded-lg'>
-            <svg className='w-4 h-4 text-primary-600' fill='currentColor' viewBox='0 0 20 20'>
+          <div className='flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-dark-700 p-2.5 rounded-lg'>
+            <svg className='w-4 h-4 text-primary-600 dark:text-primary-400' fill='currentColor' viewBox='0 0 20 20'>
               <path d='M10 10a3 3 0 100-6 3 3 0 000 6zM0 10a1 1 0 011-1h2.757l.026.05A7.002 7.002 0 0110 18a7 7 0 006.217-3.944l.026-.05h2.757a1 1 0 110 2h-2.757l-.026.05A9 9 0 0110 20a9 9 0 01-8.217-4.944l-.026-.05H1a1 1 0 01-1-1z' />
             </svg>
             <span>{car.seating_capacity} Seats</span>
           </div>
 
           {/* Fuel */}
-          <div className='flex items-center gap-2 text-sm text-gray-700 bg-gray-50 p-2.5 rounded-lg'>
-            <svg className='w-4 h-4 text-primary-600' fill='currentColor' viewBox='0 0 20 20'>
+          <div className='flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-dark-700 p-2.5 rounded-lg'>
+            <svg className='w-4 h-4 text-primary-600 dark:text-primary-400' fill='currentColor' viewBox='0 0 20 20'>
               <path d='M10.3 1.046A1 1 0 009 2v11a3 3 0 106 0V2a1 1 0 00-1.7-.954z' />
             </svg>
             <span>{car.fuel_type}</span>
           </div>
 
           {/* Transmission */}
-          <div className='flex items-center gap-2 text-sm text-gray-700 bg-gray-50 p-2.5 rounded-lg'>
-            <svg className='w-4 h-4 text-primary-600' fill='currentColor' viewBox='0 0 20 20'>
+          <div className='flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-dark-700 p-2.5 rounded-lg'>
+            <svg className='w-4 h-4 text-primary-600 dark:text-primary-400' fill='currentColor' viewBox='0 0 20 20'>
               <path d='M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z' />
             </svg>
             <span className='capitalize'>{car.transmission_type}</span>
           </div>
 
           {/* Location */}
-          <div className='flex items-center gap-2 text-sm text-gray-700 bg-gray-50 p-2.5 rounded-lg'>
-            <svg className='w-4 h-4 text-primary-600' fill='currentColor' viewBox='0 0 20 20'>
+          <div className='flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-dark-700 p-2.5 rounded-lg'>
+            <svg className='w-4 h-4 text-primary-600 dark:text-primary-400' fill='currentColor' viewBox='0 0 20 20'>
               <path fillRule='evenodd' d='M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z' clipRule='evenodd' />
             </svg>
             <span>{car.location}</span>
