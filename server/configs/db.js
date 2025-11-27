@@ -2,8 +2,10 @@ import mongoose from "mongoose";
 
 const connectDB = async()=>{
     try {
-        if (!process.env.MONGODB_URI) {
-            throw new Error('MONGODB_URI is not set in environment');
+        const mongodbUri = process.env.MONGODB_URI;
+        
+        if (!mongodbUri) {
+            throw new Error('MONGODB_URI environment variable is not set. Please configure it in your environment.');
         }
 
         mongoose.connection.on('connected', () => console.log('MongoDB connection event: connected'));
@@ -11,7 +13,7 @@ const connectDB = async()=>{
         mongoose.connection.on('disconnected', () => console.log('MongoDB disconnected'));
 
         // Connect with optimized settings
-        await mongoose.connect(process.env.MONGODB_URI, {
+        await mongoose.connect(mongodbUri, {
             serverSelectionTimeoutMS: 5000,
             connectTimeoutMS: 10000,
             socketTimeoutMS: 45000,
