@@ -42,10 +42,8 @@ if (missingEnvVars.length > 0) {
   console.error('  - MONGODB_URI');
   console.error('  - JWT_SECRET');
   console.error('  - NODE_ENV=production');
-  if (process.env.NODE_ENV === 'production') {
-    console.error('\nExiting because required variables are missing in production mode.');
-    process.exit(1);
-  }
+  console.error('\nContinuing anyway to allow debugging...\n');
+  // Don't exit - let it try to connect so we can see the actual error
 } else {
   console.log('✓ All required environment variables are set\n');
 }
