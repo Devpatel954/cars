@@ -1,12 +1,30 @@
-import React, { useMemo, useState } from 'react'
+import React, { useMemo, useState, useEffect } from 'react'
 import Tilte from '../components/Tilte'
-import { assets, dummyCarData } from '../assets/assets'
+import { assets } from '../assets/assets'
 import Carcard from '../components/Carcard'
 
 const Cars = () => {
   const [query, setQuery] = useState('')
+  const [cars, setCars] = useState([])
+  const [loading, setLoading] = useState(false)
 
-  const cars = Array.isArray(dummyCarData) ? dummyCarData : []
+  useEffect(() => {
+    const fetchCars = async () => {
+      try {
+        setLoading(true)
+        const res = await fetch('http://localhost:3020/api/owner/cars')
+        const data = await res.json()
+        if (data.success) {
+          setCars(data.cars || [])
+        }
+      } catch (error) {
+        console.error('Error fetching cars:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchCars()
+  }, [])
 
   const filteredCars = useMemo(() => {
     const q = query.trim().toLowerCase()
@@ -17,7 +35,6 @@ const Cars = () => {
         c.model,
         c.category,
         c.location,
-        ...(Array.isArray(c.features) ? c.features : []),
       ]
         .filter(Boolean)
         .join(' ')
@@ -50,21 +67,27 @@ const Cars = () => {
 
       {/* Results */}
       <div className="px-6 md:px-16 lg:px-24 xl:px-32 mt-10 max-w-7xl mx-auto">
-        <p className="text-sm text-gray-600">
-          Showing <span className="font-medium">{filteredCars.length}</span> of{' '}
-          <span className="font-medium">{cars.length}</span> cars
-        </p>
+        {loading ? (
+          <p className="text-center text-gray-500">Loading cars...</p>
+        ) : (
+          <>
+            <p className="text-sm text-gray-600">
+              Showing <span className="font-medium">{filteredCars.length}</span> of{' '}
+              <span className="font-medium">{cars.length}</span> cars
+            </p>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 mt-4">
-          {filteredCars.map((car, index) => (
-            <Carcard key={car._id || car.id || index} car={car} />
-          ))}
-        </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 mt-4">
+              {filteredCars.map((car, index) => (
+                <Carcard key={car._id || index} car={car} />
+              ))}
+            </div>
 
-        {filteredCars.length === 0 && (
-          <div className="text-center text-gray-500 py-12">
-            No cars match “{query}”. Try a different search.
-          </div>
+            {filteredCars.length === 0 && (
+              <div className="text-center text-gray-500 py-12">
+                No cars match "{query}". Try a different search.
+              </div>
+            )}
+          </>
         )}
       </div>
     </div>

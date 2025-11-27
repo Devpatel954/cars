@@ -1,23 +1,84 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { assets, dummyCarData } from '../assets/assets'
+import { assets } from '../assets/assets'
 import Loader from '../components/Loader'
 
 const Cardetails = () => {
   const { id } = useParams()
   const navigate = useNavigate()
   const [car, setCar] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [submitting, setSubmitting] = useState(false)
+  const [pickupDate, setPickupDate] = useState('')
+  const [returnDate, setReturnDate] = useState('')
 
   const currency = import.meta.env.VITE_CURRENCY || '$'
 
   useEffect(() => {
-    const found = dummyCarData.find(c => String(c._id) === String(id))
-    setCar(found || null)
+    const fetchCar = async () => {
+      try {
+        const res = await fetch(`http://localhost:3020/api/owner/cars/${id}`)
+        const data = await res.json()
+        if (data.success) {
+          setCar(data.car)
+        }
+      } catch (error) {
+        console.error('Error fetching car:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+    if (id) {
+      fetchCar()
+    }
   }, [id])
+
+  const handleBooking = async (e) => {
+    e.preventDefault()
+    if (!pickupDate || !returnDate) {
+      alert('Please select both dates')
+      return
+    }
+
+    const token = localStorage.getItem('token')
+    if (!token) {
+      navigate('/login')
+      return
+    }
+
+    try {
+      setSubmitting(true)
+      const res = await fetch('http://localhost:3020/api/booking/create', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          carId: id,
+          pickupDate,
+          returnDate
+        })
+      })
+
+      const data = await res.json()
+      if (data.success) {
+        alert('Booking confirmed!')
+        navigate('/mybookings')
+      } else {
+        alert('Booking failed: ' + (data.message || 'Unknown error'))
+      }
+    } catch (error) {
+      console.error('Error booking:', error)
+      alert('Booking error')
+    } finally {
+      setSubmitting(false)
+    }
+  }
 
   if (!car) return <Loader />
 
-  const pricePerDay = car.priceperday ?? car.pricePerDay ?? car.price ?? 0
+  const pricePerDay = car.price_pday ?? car.pricePerDay ?? car.price ?? 0
   const formattedPrice = `${currency}${Number(pricePerDay).toLocaleString()}`
 
   return (
@@ -64,7 +125,7 @@ const Cardetails = () => {
               {[
                 { icon: assets.users_icon, text: `${car.seating_capacity} Seats` },
                 { icon: assets.fuel_icon, text: car.fuel_type },
-                { icon: assets.car_icon, text: car.transmission },
+                { icon: assets.car_icon, text: car.transmission_type },
                 { icon: assets.location_icon, text: car.location },
               ].map(({ icon, text }) => (
                 <div key={text} className="flex flex-col items-center bg-gray-50 p-4 rounded-lg">
@@ -99,7 +160,7 @@ const Cardetails = () => {
 
         {/* RIGHT: booking card */}
         <form
-          onSubmit={(e) => e.preventDefault()}
+          onSubmit={handleBooking}
           className="shadow-lg h-max sticky top-20 rounded-xl p-6 space-y-6 text-gray-700 bg-white"
         >
           <p className="flex items-center justify-between text-2xl text-gray-800 font-semibold">
@@ -114,6 +175,8 @@ const Cardetails = () => {
             <input
               type="date"
               id="pickup-date"
+              value={pickupDate}
+              onChange={(e) => setPickupDate(e.target.value)}
               className="border border-gray-300 px-3 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               min={new Date().toISOString().split('T')[0]}
               required
@@ -125,6 +188,8 @@ const Cardetails = () => {
             <input
               type="date"
               id="return-date"
+              value={returnDate}
+              onChange={(e) => setReturnDate(e.target.value)}
               className="border border-gray-300 px-3 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
             />
@@ -132,9 +197,10 @@ const Cardetails = () => {
 
           <button
             type="submit"
-            className="w-full bg-primary hover:bg-primary-dull transition-all py-3 font-medium text-white rounded-xl cursor-pointer"
+            disabled={submitting}
+            className="w-full bg-primary hover:bg-primary-dull transition-all py-3 font-medium text-white rounded-xl cursor-pointer disabled:opacity-50"
           >
-            Book now
+            {submitting ? 'Booking...' : 'Book now'}
           </button>
 
           <p className="text-center text-sm text-gray-500">No credit card required to reserve</p>

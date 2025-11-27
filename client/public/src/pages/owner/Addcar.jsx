@@ -104,13 +104,23 @@ const AddCar = () => {
 
     try {
       setSubmitting(true)
+      const token = localStorage.getItem('token')
+      if (!token) {
+        throw new Error('You must be logged in')
+      }
+
       const fd = new FormData()
       Object.entries(form).forEach(([k, v]) => fd.append(k, v))
-      images.forEach((file, i) => fd.append("images", file, file.name || `image_${i}.jpg`))
+      if (images.length > 0) {
+        fd.append('image', images[0]) // Use first image
+      }
 
-      // Replace with your API route
-      const res = await fetch("/api/owner/cars", {
+      // POST to backend
+      const res = await fetch("http://localhost:3020/api/owner/add-car", {
         method: "POST",
+        headers: {
+          'Authorization': `Bearer ${token}`
+        },
         body: fd,
       })
 

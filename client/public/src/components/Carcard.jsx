@@ -4,9 +4,9 @@ import { useNavigate } from 'react-router-dom'
 
 const Carcard = ({ car }) => {
   
-  const isAvailable = car.isAvailable ?? true
+  const isAvailable = car.is_available ?? true
   const currency = import.meta.env.VITE_CURRENCY || '$'
-  const formattedPrice = `${currency}${Number(car.priceperday || 0).toLocaleString()}`
+  const formattedPrice = `${currency}${Number(car.price_pday || 0).toLocaleString()}`
   const navigate  = useNavigate()
 
   return (
@@ -61,7 +61,7 @@ const Carcard = ({ car }) => {
 
           <div className="flex items-center text-sm">
             <img src={assets.car_icon} alt="" className="h-4 w-4 mr-2" />
-            <span className="capitalize">{car.transmission}</span>
+            <span className="capitalize">{car.transmission_type}</span>
           </div>
 
           <div className="flex items-center text-sm">

@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react'
-import { assets, dummyMyBookingsData } from '../assets/assets'
+import { assets } from '../assets/assets'
 import Tilte from '../components/Tilte'
 
 const Mybookings = () => {
   const [bookings, setBookings] = useState([])
+  const [loading, setLoading] = useState(false)
   const currency = import.meta.env.VITE_CURRENCY || '$'
 
   const fmtDate = (iso) =>
@@ -11,10 +12,31 @@ const Mybookings = () => {
   const fmtMoney = (n) => `${currency}${Number(n || 0).toLocaleString()}`
 
   useEffect(() => {
-    const rows = Array.isArray(dummyMyBookingsData) ? dummyMyBookingsData : []
-    // optional: newest first
-    rows.sort((a, b) => new Date(b?.createdAt || 0) - new Date(a?.createdAt || 0))
-    setBookings(rows)
+    const fetchBookings = async () => {
+      try {
+        setLoading(true)
+        const token = localStorage.getItem('token')
+        if (!token) {
+          return
+        }
+        const res = await fetch('http://localhost:3020/api/booking/my-bookings', {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        })
+        const data = await res.json()
+        if (data.success) {
+          const rows = Array.isArray(data.bookings) ? data.bookings : []
+          rows.sort((a, b) => new Date(b?.createdAt || 0) - new Date(a?.createdAt || 0))
+          setBookings(rows)
+        }
+      } catch (error) {
+        console.error('Error fetching bookings:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchBookings()
   }, [])
 
   return (
@@ -25,11 +47,11 @@ const Mybookings = () => {
         align="left"
       />
 
-      {bookings.length === 0 && (
+      {loading ? (
+        <p className="mt-8 text-gray-500">Loading bookings...</p>
+      ) : bookings.length === 0 ? (
         <div className="mt-8 text-gray-500">No bookings yet.</div>
-      )}
-
-      <div>
+      ) : (
         {bookings.map((booking, index) => {
           const status = booking?.status || 'pending'
           const statusClasses =
@@ -110,6 +132,7 @@ const Mybookings = () => {
           </div>
         )})}
       </div>
+      )}
     </div>
   )
 }
