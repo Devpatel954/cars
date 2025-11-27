@@ -68,6 +68,7 @@ try {
 app.use(cors({
   origin: [
     'http://localhost:5175',
+    'http://localhost:5176',
     'http://localhost:3000',
     'https://carrentalapp-client.vercel.app',
     'https://carrentalapp.vercel.app',
