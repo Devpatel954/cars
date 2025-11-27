@@ -1,13 +1,23 @@
 import React, { useState, useEffect } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
-import { assets, menuLinks } from '../assets/assets'
+import { assets } from '../assets/assets'
 
 const Navbar = ({ setShowLogin }) => {
     const location = useLocation()
-    const [open, setOpen] = useState(false)
+    const navigate = useNavigate()
+    const [openMenu, setOpenMenu] = useState(false)
     const [token, setToken] = useState('')
     const [user, setUser] = useState(null)
-    const navigate = useNavigate()
+    const [scrolled, setScrolled] = useState(false)
+
+    // Handle scroll effect
+    useEffect(() => {
+        const handleScroll = () => {
+            setScrolled(window.scrollY > 20)
+        }
+        window.addEventListener('scroll', handleScroll)
+        return () => window.removeEventListener('scroll', handleScroll)
+    }, [])
 
     useEffect(() => {
         const readToken = () => {
@@ -34,7 +44,6 @@ const Navbar = ({ setShowLogin }) => {
         readToken()
         fetchUser(localStorage.getItem('token'))
 
-        // Listen for auth changes (login/register/logout)
         const handler = () => {
             readToken()
             fetchUser(localStorage.getItem('token'))
@@ -51,144 +60,58 @@ const Navbar = ({ setShowLogin }) => {
         localStorage.removeItem('user')
         setToken('')
         setUser(null)
-        setOpen(false)
+        setOpenMenu(false)
         window.dispatchEvent(new Event('authChange'))
         navigate('/')
     }
 
     const closeMenu = () => {
-        setOpen(false)
+        setOpenMenu(false)
     }
-    
+
+    const navLinks = [
+        { label: 'Home', path: '/' },
+        { label: 'Cars', path: '/cars' },
+        { label: 'My Bookings', path: '/bookings' },
+    ]
+
     return (
-        <nav className={`flex items-center justify-between px-4 sm:px-6 md:px-12 lg:px-20 py-4 text-gray-600 border-b border-gray-200 relative transition-all ${location.pathname === "/" && "bg-light"}`}>
-            
-            {/* Logo */}
-            <Link to='/' onClick={closeMenu} className='flex-shrink-0'>
-                <img src={assets.logo} alt="logo" className='h-7 sm:h-8'/>
-            </Link>
-
-            {/* Desktop Menu */}
-            <div className={`hidden md:flex items-center gap-6 lg:gap-8`}>
-                {menuLinks.map((link, index) => (
-                    <Link 
-                        key={index} 
-                        to={link.path}
-                        className='text-sm lg:text-base hover:text-indigo-500 transition-colors'
-                    >
-                        {link.name}
+        <nav className={`sticky top-0 z-40 transition-all duration-300 ${scrolled ? 'bg-white shadow-lg backdrop-blur-md' : 'bg-white/80 backdrop-blur-md'}`}>
+            <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
+                <div className='flex items-center justify-between h-16 sm:h-20'>
+                    
+                    {/* Logo */}
+                    <Link to='/' className='flex-shrink-0 flex items-center gap-2 group'>
+                        <div className='p-2 bg-gradient-primary rounded-xl group-hover:shadow-glow transition-all duration-300'>
+                            <svg className='w-6 h-6 text-white' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                                <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M13 10V3L4 14h7v7l9-11h-7z' />
+                            </svg>
+                        </div>
+                        <span className='text-xl sm:text-2xl font-bold bg-gradient-primary bg-clip-text text-transparent hidden sm:inline'>CarRent</span>
                     </Link>
-                ))}
 
-                {/* Search Bar */}
-                <div className='hidden lg:flex items-center text-sm gap-2 border border-gray-300 px-3 py-2 rounded-full hover:border-indigo-500 transition-colors'>
-                    <input 
-                        type="text" 
-                        className='py-1 w-40 bg-transparent outline-none placeholder-gray-500 text-sm' 
-                        placeholder='Search...'
-                    />
-                    <img src={assets.search_icon} alt="search" className='w-4 h-4' />
-                </div>
-            </div>
-
-            {/* Right Section - Desktop */}
-            <div className='hidden md:flex items-center gap-3 lg:gap-4'>
-                <button 
-                    onClick={() => navigate('/owner')}
-                    className='text-sm lg:text-base hover:text-indigo-500 transition-colors cursor-pointer font-medium'
-                >
-                    Dashboard 
-                </button>
-
-                {/* If logged in but not owner, show Become Owner */}
-                {token && user && user.role !== 'owner' && (
-                    <button
-                        onClick={async () => {
-                            try {
-                                const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3020'
-                                const res = await fetch(`${apiUrl}/api/owner/changerole`, {
-                                    method: 'POST',
-                                    headers: { Authorization: `Bearer ${token}` }
-                                })
-                                const d = await res.json()
-                                if (d && d.success) {
-                                    window.dispatchEvent(new Event('authChange'))
-                                    alert('Role changed to owner. You can now add cars.')
-                                } else {
-                                    alert(d.message || 'Failed to change role')
-                                }
-                            } catch (err) {
-                                console.error(err)
-                                alert('Error switching role')
-                            }
-                        }}
-                        className='text-sm px-3 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors cursor-pointer font-medium'
-                    >
-                        Become Owner
-                    </button>
-                )}
-
-                {token ? (
-                    <button 
-                        onClick={handleLogout}
-                        className='text-sm px-4 sm:px-6 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors cursor-pointer font-medium'
-                    >
-                        Logout
-                    </button>
-                ) : (
-                    <button 
-                        onClick={() => setShowLogin(true)}
-                        className='text-sm px-4 sm:px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors cursor-pointer font-medium'
-                    >
-                        Login
-                    </button>
-                )}
-            </div>
-
-            {/* Mobile Menu Button */}
-            <button 
-                className='md:hidden cursor-pointer p-1' 
-                aria-label='Menu' 
-                onClick={() => setOpen(!open)}
-            >
-                <img src={open ? assets.close_icon : assets.menu_icon} alt="menu" className='w-6 h-6' />
-            </button>
-
-            {/* Mobile Menu */}
-            {open && (
-                <div className={`fixed md:hidden top-16 left-0 right-0 bg-white border-b border-gray-200 shadow-lg z-40 p-4 sm:p-6 max-h-[calc(100vh-4rem)] overflow-y-auto`}>
-                    <div className='flex flex-col gap-4'>
-                        {/* Mobile Navigation Links */}
-                        {menuLinks.map((link, index) => (
-                            <Link 
-                                key={index} 
+                    {/* Desktop Navigation */}
+                    <div className='hidden md:flex items-center gap-8'>
+                        {navLinks.map((link) => (
+                            <Link
+                                key={link.path}
                                 to={link.path}
-                                onClick={closeMenu}
-                                className='text-base font-medium hover:text-indigo-500 transition-colors py-2 border-b border-gray-100 last:border-0'
+                                className={`font-medium transition-colors duration-200 ${
+                                    location.pathname === link.path
+                                        ? 'text-primary-600'
+                                        : 'text-gray-700 hover:text-primary-600'
+                                }`}
                             >
-                                {link.name}
+                                {link.label}
                             </Link>
                         ))}
+                    </div>
 
-                        {/* Mobile Search */}
-                        <div className='flex items-center gap-2 border border-gray-300 px-3 py-2.5 rounded-lg my-2'>
-                            <input 
-                                type="text" 
-                                className='flex-1 bg-transparent outline-none placeholder-gray-500 text-sm' 
-                                placeholder='Search cars...'
-                            />
-                            <img src={assets.search_icon} alt="search" className='w-4 h-4' />
-                        </div>
-
-                        <hr className='my-2' />
-
-                        {/* Mobile Action Buttons */}
-                        <button 
-                            onClick={() => {
-                                navigate('/owner')
-                                closeMenu()
-                            }}
-                            className='text-base font-medium hover:text-indigo-500 transition-colors py-2 w-full text-left'
+                    {/* Right Section - Desktop */}
+                    <div className='hidden md:flex items-center gap-4'>
+                        <button
+                            onClick={() => navigate('/owner')}
+                            className='px-4 py-2 text-gray-700 hover:text-primary-600 font-medium transition-colors'
                         >
                             Dashboard
                         </button>
@@ -205,8 +128,7 @@ const Navbar = ({ setShowLogin }) => {
                                         const d = await res.json()
                                         if (d && d.success) {
                                             window.dispatchEvent(new Event('authChange'))
-                                            alert('Role changed to owner!')
-                                            closeMenu()
+                                            alert('✨ Role changed! You can now add cars.')
                                         } else {
                                             alert(d.message || 'Failed to change role')
                                         }
@@ -214,26 +136,121 @@ const Navbar = ({ setShowLogin }) => {
                                         alert('Error switching role')
                                     }
                                 }}
-                                className='w-full px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors font-medium text-sm'
+                                className='px-4 py-2 bg-accent-600 hover:bg-accent-700 text-white rounded-lg font-medium transition-all hover:shadow-lg'
                             >
                                 Become Owner
                             </button>
                         )}
 
                         {token ? (
-                            <button 
+                            <button
                                 onClick={handleLogout}
-                                className='w-full px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors font-medium text-sm'
+                                className='px-6 py-2 bg-gradient-primary hover:shadow-lg text-white rounded-lg font-semibold transition-all hover:scale-105'
                             >
                                 Logout
                             </button>
                         ) : (
-                            <button 
+                            <button
+                                onClick={() => setShowLogin(true)}
+                                className='px-6 py-2 bg-gradient-primary hover:shadow-lg text-white rounded-lg font-semibold transition-all hover:scale-105'
+                            >
+                                Login
+                            </button>
+                        )}
+                    </div>
+
+                    {/* Mobile Menu Button */}
+                    <button
+                        onClick={() => setOpenMenu(!openMenu)}
+                        className='md:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors'
+                    >
+                        {openMenu ? (
+                            <svg className='w-6 h-6 text-gray-900' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                                <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M6 18L18 6M6 6l12 12' />
+                            </svg>
+                        ) : (
+                            <svg className='w-6 h-6 text-gray-900' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                                <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M4 6h16M4 12h16M4 18h16' />
+                            </svg>
+                        )}
+                    </button>
+                </div>
+            </div>
+
+            {/* Mobile Menu */}
+            {openMenu && (
+                <div className='md:hidden bg-white border-t border-gray-200 animate-slide-down'>
+                    <div className='px-4 py-4 space-y-2 max-h-[calc(100vh-80px)] overflow-y-auto'>
+                        {navLinks.map((link) => (
+                            <Link
+                                key={link.path}
+                                to={link.path}
+                                onClick={closeMenu}
+                                className={`block px-4 py-2.5 rounded-lg font-medium transition-colors ${
+                                    location.pathname === link.path
+                                        ? 'bg-primary-100 text-primary-700'
+                                        : 'text-gray-700 hover:bg-gray-100'
+                                }`}
+                            >
+                                {link.label}
+                            </Link>
+                        ))}
+
+                        <hr className='my-3' />
+
+                        <button
+                            onClick={() => {
+                                navigate('/owner')
+                                closeMenu()
+                            }}
+                            className='w-full block text-left px-4 py-2.5 rounded-lg text-gray-700 hover:bg-gray-100 font-medium transition-colors'
+                        >
+                            Dashboard
+                        </button>
+
+                        {token && user && user.role !== 'owner' && (
+                            <button
+                                onClick={async () => {
+                                    try {
+                                        const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3020'
+                                        const res = await fetch(`${apiUrl}/api/owner/changerole`, {
+                                            method: 'POST',
+                                            headers: { Authorization: `Bearer ${token}` }
+                                        })
+                                        const d = await res.json()
+                                        if (d && d.success) {
+                                            window.dispatchEvent(new Event('authChange'))
+                                            alert('✨ Role changed!')
+                                            closeMenu()
+                                        } else {
+                                            alert(d.message || 'Failed')
+                                        }
+                                    } catch (err) {
+                                        alert('Error')
+                                    }
+                                }}
+                                className='w-full px-4 py-2.5 bg-accent-600 hover:bg-accent-700 text-white rounded-lg font-medium transition-all'
+                            >
+                                Become Owner
+                            </button>
+                        )}
+
+                        <hr className='my-3' />
+
+                        {token ? (
+                            <button
+                                onClick={handleLogout}
+                                className='w-full px-4 py-2.5 bg-gradient-primary hover:shadow-lg text-white rounded-lg font-semibold transition-all'
+                            >
+                                Logout
+                            </button>
+                        ) : (
+                            <button
                                 onClick={() => {
                                     setShowLogin(true)
                                     closeMenu()
                                 }}
-                                className='w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors font-medium text-sm'
+                                className='w-full px-4 py-2.5 bg-gradient-primary hover:shadow-lg text-white rounded-lg font-semibold transition-all'
                             >
                                 Login
                             </button>

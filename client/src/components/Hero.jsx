@@ -10,142 +10,139 @@ const Hero = () => {
 
     const handleSearch = (e) => {
         e.preventDefault()
-        // Navigate to cars page with search params
-        const params = new URLSearchParams()
-        if (pickupLocation) params.append('location', pickupLocation)
-        if (pickupDate) params.append('pickupDate', pickupDate)
-        if (returnDate) params.append('returnDate', returnDate)
-        navigate(`/cars${params.toString() ? '?' + params.toString() : ''}`)
+        navigate(`/cars${pickupLocation ? '?location=' + pickupLocation : ''}`)
     }
 
     const minDate = new Date().toISOString().split('T')[0]
 
     return (
-        <div className='min-h-screen flex flex-col items-center justify-center gap-8 sm:gap-12 bg-light text-center px-4 py-12 sm:py-16'>
-            {/* Heading */}
-            <div>
-                <h1 className='text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold text-gray-900 leading-tight'>
-                    Luxury Cars<br className="hidden sm:inline" /> on Rent
-                </h1>
-                <p className='text-gray-600 text-sm sm:text-base mt-3'>Find and book your perfect ride in minutes</p>
+        <section className='relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-light'>
+            {/* Animated Background Elements */}
+            <div className='absolute inset-0'>
+                <div className='absolute top-0 right-0 w-96 h-96 bg-accent-400 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-bounce-light'></div>
+                <div className='absolute bottom-0 left-0 w-96 h-96 bg-primary-400 rounded-full mix-blend-multiply filter blur-3xl opacity-20'></div>
             </div>
 
-            {/* Search Form */}
-            <form 
-                onSubmit={handleSearch}
-                className='w-full max-w-2xl bg-white rounded-lg sm:rounded-2xl shadow-lg p-4 sm:p-6'
-            >
-                {/* Mobile Layout */}
-                <div className='sm:hidden flex flex-col gap-4'>
-                    <div className='flex flex-col gap-1.5'>
-                        <label className='text-xs font-medium text-gray-700'>Pickup Location</label>
-                        <select 
-                            required 
-                            value={pickupLocation}
-                            onChange={(e) => setPickupLocation(e.target.value)}
-                            className='w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500'
-                        >
-                            <option value="">Select location</option>
-                            {cityList.map((city) => (
-                                <option key={city} value={city}>{city}</option>
-                            ))}
-                        </select>
-                        {pickupLocation && <p className='text-xs text-blue-600 mt-0.5'>{pickupLocation}</p>}
+            <div className='relative z-10 w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8'>
+                <div className='grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center py-12 sm:py-20 lg:py-32'>
+                    
+                    {/* Left Content */}
+                    <div className='animate-slide-up'>
+                        <div className='inline-block px-4 py-2 bg-primary-100 text-primary-700 rounded-full text-sm font-semibold mb-6'>
+                            ✨ Premium Car Rental Service
+                        </div>
+                        
+                        <h1 className='text-4xl sm:text-5xl lg:text-6xl font-bold text-dark-900 mb-6 leading-tight'>
+                            Your Perfect <span className='bg-gradient-primary bg-clip-text text-transparent'>Ride Awaits</span>
+                        </h1>
+                        
+                        <p className='text-lg text-gray-600 mb-8 leading-relaxed'>
+                            Discover luxury cars at unbeatable prices. Book instantly, drive happily. From economy to premium, we have your perfect match.
+                        </p>
+
+                        <div className='flex flex-col sm:flex-row gap-4 mb-12'>
+                            <button
+                                onClick={() => document.querySelector('form')?.scrollIntoView({ behavior: 'smooth' })}
+                                className='px-8 py-4 bg-gradient-primary hover:shadow-glow text-white font-bold rounded-xl transition-all hover:scale-105 transform'
+                            >
+                                Book Now
+                            </button>
+                            <button
+                                onClick={() => navigate('/cars')}
+                                className='px-8 py-4 border-2 border-primary-600 text-primary-600 hover:bg-primary-50 font-bold rounded-xl transition-all'
+                            >
+                                Browse Cars
+                            </button>
+                        </div>
+
+                        {/* Stats */}
+                        <div className='grid grid-cols-3 gap-6'>
+                            <div>
+                                <div className='text-3xl font-bold text-primary-600'>500+</div>
+                                <div className='text-sm text-gray-600'>Cars Available</div>
+                            </div>
+                            <div>
+                                <div className='text-3xl font-bold text-primary-600'>10k+</div>
+                                <div className='text-sm text-gray-600'>Happy Drivers</div>
+                            </div>
+                            <div>
+                                <div className='text-3xl font-bold text-primary-600'>24/7</div>
+                                <div className='text-sm text-gray-600'>Support</div>
+                            </div>
+                        </div>
                     </div>
 
-                    <div className='flex flex-col gap-1.5'>
-                        <label className='text-xs font-medium text-gray-700'>Pickup Date</label>
-                        <input 
-                            type="date" 
-                            value={pickupDate}
-                            onChange={(e) => setPickupDate(e.target.value)}
-                            min={minDate} 
-                            className='w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500'
-                            required
+                    {/* Right Hero Image - Desktop Only */}
+                    <div className='relative hidden lg:block'>
+                        <div className='absolute inset-0 bg-gradient-primary opacity-5 rounded-3xl blur-2xl'></div>
+                        <img 
+                            src={assets.main_car || 'https://via.placeholder.com/500x400'} 
+                            alt="luxury car" 
+                            className='w-full h-auto object-contain drop-shadow-2xl'
                         />
                     </div>
-
-                    <div className='flex flex-col gap-1.5'>
-                        <label className='text-xs font-medium text-gray-700'>Return Date</label>
-                        <input 
-                            type="date" 
-                            value={returnDate}
-                            onChange={(e) => setReturnDate(e.target.value)}
-                            min={pickupDate || minDate} 
-                            className='w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500'
-                            required
-                        />
-                    </div>
-
-                    <button 
-                        type='submit'
-                        className='w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg transition-colors flex items-center justify-center gap-2'
-                    >
-                        <img src={assets.search_icon} alt="" className='brightness-300 w-4 h-4' />
-                        Search Cars
-                    </button>
                 </div>
 
-                {/* Tablet & Desktop Layout */}
-                <div className='hidden sm:flex flex-col lg:flex-row lg:items-end gap-4 lg:gap-3'>
-                    <div className='flex-1 flex flex-col gap-1.5'>
-                        <label className='text-xs font-medium text-gray-700'>Pickup Location</label>
-                        <select 
-                            required 
-                            value={pickupLocation}
-                            onChange={(e) => setPickupLocation(e.target.value)}
-                            className='w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500'
-                        >
-                            <option value="">Select location</option>
-                            {cityList.map((city) => (
-                                <option key={city} value={city}>{city}</option>
-                            ))}
-                        </select>
+                {/* Search Form */}
+                <form onSubmit={handleSearch} className='mt-12 bg-white rounded-2xl shadow-2xl p-6 sm:p-8 animate-slide-up'>
+                    <h3 className='text-2xl font-bold text-dark-900 mb-6'>Find Your Perfect Car</h3>
+                    
+                    <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4'>
+                        {/* Location */}
+                        <div>
+                            <label className='text-sm font-semibold text-gray-700 mb-2 block'>📍 Location</label>
+                            <select 
+                                value={pickupLocation}
+                                onChange={(e) => setPickupLocation(e.target.value)}
+                                className='w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-primary-500 focus:ring-0 outline-none transition-colors'
+                                required
+                            >
+                                <option value="">Select location</option>
+                                {cityList.map((city) => (
+                                    <option key={city} value={city}>{city}</option>
+                                ))}
+                            </select>
+                        </div>
+
+                        {/* Pickup Date */}
+                        <div>
+                            <label className='text-sm font-semibold text-gray-700 mb-2 block'>📅 Pickup</label>
+                            <input 
+                                type="date" 
+                                value={pickupDate}
+                                onChange={(e) => setPickupDate(e.target.value)}
+                                min={minDate}
+                                className='w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-primary-500 focus:ring-0 outline-none transition-colors'
+                                required
+                            />
+                        </div>
+
+                        {/* Return Date */}
+                        <div>
+                            <label className='text-sm font-semibold text-gray-700 mb-2 block'>📅 Return</label>
+                            <input 
+                                type="date" 
+                                value={returnDate}
+                                onChange={(e) => setReturnDate(e.target.value)}
+                                min={pickupDate || minDate}
+                                className='w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-primary-500 focus:ring-0 outline-none transition-colors'
+                                required
+                            />
+                        </div>
+
+                        {/* Search Button */}
+                        <div className='flex items-end'>
+                            <button 
+                                type='submit'
+                                className='w-full px-6 py-3 bg-gradient-primary hover:shadow-lg text-white font-bold rounded-lg transition-all hover:scale-105 transform'
+                            >
+                                🔍 Search
+                            </button>
+                        </div>
                     </div>
-
-                    <div className='flex-1 flex flex-col gap-1.5'>
-                        <label className='text-xs font-medium text-gray-700'>Pickup Date</label>
-                        <input 
-                            type="date" 
-                            value={pickupDate}
-                            onChange={(e) => setPickupDate(e.target.value)}
-                            min={minDate} 
-                            className='w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500'
-                            required
-                        />
-                    </div>
-
-                    <div className='flex-1 flex flex-col gap-1.5'>
-                        <label className='text-xs font-medium text-gray-700'>Return Date</label>
-                        <input 
-                            type="date" 
-                            value={returnDate}
-                            onChange={(e) => setReturnDate(e.target.value)}
-                            min={pickupDate || minDate} 
-                            className='w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500'
-                            required
-                        />
-                    </div>
-
-                    <button 
-                        type='submit'
-                        className='bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 lg:px-8 py-2.5 rounded-lg transition-colors flex items-center justify-center gap-2 whitespace-nowrap'
-                    >
-                        <img src={assets.search_icon} alt="" className='brightness-300 w-4 h-4' />
-                        Search
-                    </button>
-                </div>
-            </form>
-
-            {/* Hero Image */}
-            <div className='w-full max-w-4xl'>
-                <img 
-                    src={assets.main_car} 
-                    alt="luxury car" 
-                    className='w-full h-auto max-h-64 sm:max-h-96 object-contain'
-                />
+                </form>
             </div>
-        </div>
+        </section>
     )
 }
 
