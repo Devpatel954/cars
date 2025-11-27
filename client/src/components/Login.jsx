@@ -1,5 +1,4 @@
 import React, { useState } from 'react'
-import { assets } from '../assets/assets'
 
 const Login = ({ setShowLogin }) => {
     const [state, setState] = useState("login");
@@ -33,14 +32,20 @@ const Login = ({ setShowLogin }) => {
 
             const data = await res.json()
             if (data.success) {
+                // Only log in after successful login, not after registration
                 if (state === "login") {
-                    localStorage.setItem('token', data.token)
-                    localStorage.setItem('user', JSON.stringify(data.user || { email }))
-                    window.dispatchEvent(new Event('authChange'))
+                    try {
+                        localStorage.setItem('token', data.token)
+                        localStorage.setItem('user', JSON.stringify(data.user || { email }))
+                        window.dispatchEvent(new Event('authChange'))
+                    } catch (e) {
+                        console.error('Storage error:', e)
+                    }
                     setShowLogin(false)
-                    alert("✨ Welcome! Login successful!")
+                    alert("Login successful!")
                 } else {
-                    alert("🎉 Account created! Please login with your credentials.")
+                    // After registration, ask user to login
+                    alert("Account created! Please login with your credentials.")
                     setState("login")
                     setEmail("")
                     setPassword("")
@@ -51,6 +56,7 @@ const Login = ({ setShowLogin }) => {
             }
         } catch (err) {
             setError("Network error: " + err.message)
+            console.error('Login error:', err)
         } finally {
             setLoading(false)
         }
@@ -64,149 +70,110 @@ const Login = ({ setShowLogin }) => {
     return (
         <div 
             onClick={handleClose}
-            className='fixed inset-0 z-50 flex items-center justify-center bg-black/60 dark:bg-black/80 backdrop-blur-sm p-4 animate-fade-in'
+            className='fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4'
         >
             <form 
                 onSubmit={onSubmitHandler} 
                 onClick={(e) => e.stopPropagation()} 
-                className="w-full max-w-md bg-white dark:bg-dark-800 rounded-2xl shadow-2xl p-8 animate-slide-up"
+                className="flex flex-col gap-4 w-full max-w-sm sm:max-w-md p-6 sm:p-8 text-gray-500 rounded-lg shadow-xl border border-gray-200 bg-white"
             >
-                {/* Close Button */}
-                <button
-                    type="button"
-                    onClick={handleClose}
-                    className='absolute top-4 right-4 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-400 transition-colors'
-                >
-                    <svg className='w-6 h-6' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
-                        <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M6 18L18 6M6 6l12 12' />
-                    </svg>
-                </button>
-
-                {/* Header */}
-                <div className="text-center mb-8">
-                    <div className="w-12 h-12 bg-gradient-primary rounded-xl flex items-center justify-center mx-auto mb-4 shadow-lg">
-                        <svg className='w-6 h-6 text-white' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
-                            <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M13 10V3L4 14h7v7l9-11h-7z' />
-                        </svg>
-                    </div>
-                    <h2 className="text-3xl font-bold text-dark-900 dark:text-white mb-2">
-                        {state === "login" ? "Welcome Back" : "Create Account"}
-                    </h2>
-                    <p className="text-gray-600 dark:text-gray-400 text-sm">
-                        {state === "login" 
-                            ? "Sign in to your account to continue"
-                            : "Join thousands of happy renters"}
+                <div className="text-center mb-2">
+                    <p className="text-2xl sm:text-3xl font-medium">
+                        <span className="text-indigo-500">User</span> {state === "login" ? "Login" : "Sign Up"}
                     </p>
                 </div>
 
-                {/* Name Field - Register Only */}
                 {state === "register" && (
-                    <div className="mb-4">
-                        <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Full Name</label>
+                    <div className="w-full">
+                        <label className="block text-sm font-medium text-gray-600 mb-1">Name</label>
                         <input 
                             onChange={(e) => setName(e.target.value)} 
                             value={name} 
-                            placeholder="John Doe" 
-                            className="w-full px-4 py-3 rounded-lg border-2 border-gray-200 dark:border-dark-600 focus:border-primary-500 dark:focus:border-primary-400 focus:ring-0 outline-none transition-colors bg-white dark:bg-dark-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500" 
+                            placeholder="Enter your name" 
+                            className="border border-gray-200 rounded w-full p-2.5 outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-300 transition-all" 
                             type="text" 
                             required 
                         />
                     </div>
                 )}
 
-                {/* Email Field */}
-                <div className="mb-4">
-                    <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Email Address</label>
+                <div className="w-full">
+                    <label className="block text-sm font-medium text-gray-600 mb-1">Email</label>
                     <input 
                         onChange={(e) => setEmail(e.target.value)} 
                         value={email} 
-                        placeholder="you@example.com" 
-                        className="w-full px-4 py-3 rounded-lg border-2 border-gray-200 dark:border-dark-600 focus:border-primary-500 dark:focus:border-primary-400 focus:ring-0 outline-none transition-colors bg-white dark:bg-dark-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500" 
+                        placeholder="Enter your email" 
+                        className="border border-gray-200 rounded w-full p-2.5 outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-300 transition-all" 
                         type="email" 
                         required 
                     />
                 </div>
 
-                {/* Password Field */}
-                <div className="mb-6">
-                    <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Password</label>
+                <div className="w-full">
+                    <label className="block text-sm font-medium text-gray-600 mb-1">Password</label>
                     <input 
                         onChange={(e) => setPassword(e.target.value)} 
                         value={password} 
-                        placeholder="••••••••" 
-                        className="w-full px-4 py-3 rounded-lg border-2 border-gray-200 dark:border-dark-600 focus:border-primary-500 dark:focus:border-primary-400 focus:ring-0 outline-none transition-colors bg-white dark:bg-dark-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500" 
+                        placeholder="Enter your password" 
+                        className="border border-gray-200 rounded w-full p-2.5 outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-300 transition-all" 
                         type="password" 
                         required 
                     />
                 </div>
 
-                {/* Error Message */}
                 {error && (
-                    <div className="mb-4 p-4 bg-red-50 dark:bg-red-900/20 border-l-4 border-red-500 rounded">
-                        <p className="text-red-700 dark:text-red-400 text-sm font-medium">⚠️ {error}</p>
+                    <div className="bg-red-50 border border-red-200 text-red-700 px-3 py-2 rounded text-sm">
+                        {error}
                     </div>
                 )}
 
-                {/* Submit Button */}
                 <button 
                     disabled={loading} 
-                    className="w-full bg-gradient-primary hover:shadow-lg disabled:opacity-60 text-white font-bold py-3 px-4 rounded-lg transition-all duration-200 transform hover:scale-105 disabled:hover:scale-100"
+                    className="bg-indigo-500 hover:bg-indigo-600 disabled:bg-indigo-400 transition-all text-white w-full py-2.5 rounded-lg cursor-pointer font-medium disabled:opacity-75"
                 >
-                    {loading ? (
-                        <span className='flex items-center justify-center'>
-                            <svg className='animate-spin -ml-1 mr-3 h-5 w-5 text-white' xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24'>
-                                <circle className='opacity-25' cx='12' cy='12' r='10' stroke='currentColor' strokeWidth='4'></circle>
-                                <path className='opacity-75' fill='currentColor' d='M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z'></path>
-                            </svg>
-                            Processing...
-                        </span>
-                    ) : (
-                        state === "register" ? "Create Account" : "Sign In"
-                    )}
+                    {loading ? "Processing..." : (state === "register" ? "Create Account" : "Login")}
                 </button>
 
-                {/* Divider */}
-                <div className="my-6 flex items-center">
-                    <div className="flex-1 h-px bg-gray-200 dark:bg-dark-700"></div>
-                    <span className="px-3 text-sm text-gray-500 dark:text-gray-400">or</span>
-                    <div className="flex-1 h-px bg-gray-200 dark:bg-dark-700"></div>
-                </div>
-
-                {/* Toggle Auth State */}
-                <p className="text-center text-gray-600 dark:text-gray-400 text-sm">
+                <div className="text-center text-sm">
                     {state === "register" ? (
-                        <>
-                            Already have an account?{' '}
-                            <button
-                                type="button"
+                        <p>
+                            Already have account? {' '}
+                            <span 
                                 onClick={() => {
                                     setState("login")
                                     setError("")
                                     setEmail("")
                                     setPassword("")
                                     setName("")
-                                }}
-                                className="text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 font-semibold hover:underline"
+                                }} 
+                                className="text-indigo-500 cursor-pointer hover:underline font-medium"
                             >
-                                Sign In
-                            </button>
-                        </>
+                                Login here
+                            </span>
+                        </p>
                     ) : (
-                        <>
-                            Don't have an account?{' '}
-                            <button
-                                type="button"
+                        <p>
+                            Don't have account? {' '}
+                            <span 
                                 onClick={() => {
                                     setState("register")
                                     setError("")
-                                }}
-                                className="text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 font-semibold hover:underline"
+                                }} 
+                                className="text-indigo-500 cursor-pointer hover:underline font-medium"
                             >
-                                Sign Up
-                            </button>
-                        </>
+                                Sign up here
+                            </span>
+                        </p>
                     )}
-                </p>
+                </div>
+
+                <button
+                    type="button"
+                    onClick={handleClose}
+                    className="text-gray-500 hover:text-gray-700 text-sm mt-2 text-center w-full"
+                >
+                    Close
+                </button>
             </form>
         </div>
     )

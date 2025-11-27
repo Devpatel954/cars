@@ -1,96 +1,74 @@
 import React from 'react'
+import { assets } from '../assets/assets'
 import { useNavigate } from 'react-router-dom'
 
 const Carcard = ({ car }) => {
+  
   const isAvailable = car.is_available ?? true
   const currency = import.meta.env.VITE_CURRENCY || '$'
   const formattedPrice = `${currency}${Number(car.price_pday || 0).toLocaleString()}`
-  const navigate = useNavigate()
+  const navigate  = useNavigate()
 
   return (
-    <div
-      onClick={() => {
-        navigate(`/car-details/${car._id}`)
-        window.scrollTo(0, 0)
-      }}
-      className='group relative bg-white dark:bg-dark-800 rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 cursor-pointer transform hover:-translate-y-2'
-    >
-      {/* Image Container */}
-      <div className='relative aspect-[16/9] overflow-hidden bg-gray-100 dark:bg-dark-700'>
+    <div onClick={()=>{navigate(`/car-details/${car._id}`);scrollTo(0,0)}}className="group rounded-xl overflow-hidden shadow-lg hover:-translate-y-1 transition-all duration-300 cursor-pointer bg-white flex flex-col h-full">
+   
+      <div className="relative aspect-[16/9] overflow-hidden">
         <img
-          src={car.image || 'https://via.placeholder.com/400x225'}
+          src={car.image}
           alt={`${car.brand} ${car.model}`}
-          className='w-full h-full object-cover transition-transform duration-500 group-hover:scale-110'
+          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
         />
 
-        {/* Availability Badge */}
+       
         {isAvailable && (
-          <div className='absolute top-4 left-4 bg-green-500 text-white px-3 py-1.5 rounded-full text-xs font-bold shadow-lg'>
-            ✓ Available
-          </div>
+          <p className="absolute top-3 left-3 bg-green-600/90 text-white text-xs px-2.5 py-1 rounded-full shadow">
+            Available now
+          </p>
         )}
 
-        {/* Price Badge */}
-        <div className='absolute bottom-4 right-4 bg-gradient-primary text-white px-4 py-2 rounded-lg shadow-lg backdrop-blur-md bg-opacity-90'>
-          <div className='font-bold text-lg'>{formattedPrice}</div>
-          <div className='text-xs opacity-90'>per day</div>
+        
+        <div className="absolute bottom-3 right-3 bg-black/80 backdrop-blur-sm text-white px-3 py-1.5 rounded-lg">
+          <span className="font-semibold">{formattedPrice}</span>
+          <span className="text-xs text-white/80"> / day</span>
         </div>
-
-        {/* Overlay Gradient */}
-        <div className='absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300'></div>
       </div>
 
-      {/* Content */}
-      <div className='p-5 sm:p-6'>
-        {/* Title */}
-        <h3 className='text-xl font-bold text-dark-900 dark:text-white mb-2 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors'>
-          {car.brand} {car.model}
-        </h3>
-        <div className='flex items-center gap-2 mb-4'>
-          <span className='text-sm text-gray-600 dark:text-gray-400'>{car.year}</span>
-          <span className='text-gray-300 dark:text-gray-600'>•</span>
-          <span className='text-sm text-gray-600 dark:text-gray-400'>{car.category}</span>
+    
+      <div className="p-4 sm:p-5 flex-1 flex flex-col">
+       
+        <div className="flex justify-between items-start gap-3 mb-3">
+          <div>
+            <h3 className="text-lg font-semibold leading-snug">
+              {car.brand} {car.model}
+            </h3>
+            <p className="text-sm text-gray-500">
+              {car.category} • {car.year}
+            </p>
+          </div>
         </div>
 
-        {/* Features Grid */}
-        <div className='grid grid-cols-2 gap-3 mb-4'>
-          {/* Seats */}
-          <div className='flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-dark-700 p-2.5 rounded-lg'>
-            <svg className='w-4 h-4 text-primary-600 dark:text-primary-400' fill='currentColor' viewBox='0 0 20 20'>
-              <path d='M10 10a3 3 0 100-6 3 3 0 000 6zM0 10a1 1 0 011-1h2.757l.026.05A7.002 7.002 0 0110 18a7 7 0 006.217-3.944l.026-.05h2.757a1 1 0 110 2h-2.757l-.026.05A9 9 0 0110 20a9 9 0 01-8.217-4.944l-.026-.05H1a1 1 0 01-1-1z' />
-            </svg>
-            <span>{car.seating_capacity} Seats</span>
+     
+        <div className="mt-auto grid grid-cols-2 gap-y-2 gap-x-4 text-gray-600">
+          <div className="flex items-center text-sm">
+            <img src={assets.users_icon} alt="" className="h-4 w-4 mr-2" />
+            <span>{car.seating_capacity} seats</span>
           </div>
 
-          {/* Fuel */}
-          <div className='flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-dark-700 p-2.5 rounded-lg'>
-            <svg className='w-4 h-4 text-primary-600 dark:text-primary-400' fill='currentColor' viewBox='0 0 20 20'>
-              <path d='M10.3 1.046A1 1 0 009 2v11a3 3 0 106 0V2a1 1 0 00-1.7-.954z' />
-            </svg>
+          <div className="flex items-center text-sm">
+            <img src={assets.fuel_icon} alt="" className="h-4 w-4 mr-2" />
             <span>{car.fuel_type}</span>
           </div>
 
-          {/* Transmission */}
-          <div className='flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-dark-700 p-2.5 rounded-lg'>
-            <svg className='w-4 h-4 text-primary-600 dark:text-primary-400' fill='currentColor' viewBox='0 0 20 20'>
-              <path d='M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z' />
-            </svg>
-            <span className='capitalize'>{car.transmission_type}</span>
+          <div className="flex items-center text-sm">
+            <img src={assets.car_icon} alt="" className="h-4 w-4 mr-2" />
+            <span className="capitalize">{car.transmission_type}</span>
           </div>
 
-          {/* Location */}
-          <div className='flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-dark-700 p-2.5 rounded-lg'>
-            <svg className='w-4 h-4 text-primary-600 dark:text-primary-400' fill='currentColor' viewBox='0 0 20 20'>
-              <path fillRule='evenodd' d='M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z' clipRule='evenodd' />
-            </svg>
+          <div className="flex items-center text-sm">
+            <img src={assets.location_icon} alt="" className="h-4 w-4 mr-2" />
             <span>{car.location}</span>
           </div>
         </div>
-
-        {/* CTA Button */}
-        <button className='w-full mt-4 px-4 py-3 bg-gradient-primary hover:shadow-lg text-white font-bold rounded-xl transition-all hover:scale-105 transform'>
-          View Details →
-        </button>
       </div>
     </div>
   )

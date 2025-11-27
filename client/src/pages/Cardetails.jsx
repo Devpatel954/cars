@@ -11,9 +11,8 @@ const Cardetails = () => {
   const [submitting, setSubmitting] = useState(false)
   const [pickupDate, setPickupDate] = useState('')
   const [returnDate, setReturnDate] = useState('')
-  const [selectedImage, setSelectedImage] = useState(0)
 
-  const currency = '$'
+  const currency = import.meta.env.VITE_CURRENCY || '$'
 
   useEffect(() => {
     const fetchCar = async () => {
@@ -30,7 +29,9 @@ const Cardetails = () => {
         setLoading(false)
       }
     }
-    if (id) fetchCar()
+    if (id) {
+      fetchCar()
+    }
   }, [id])
 
   const handleBooking = async (e) => {
@@ -41,6 +42,7 @@ const Cardetails = () => {
     }
 
     const token = localStorage.getItem('token')
+    console.log('🔑 Token:', token ? 'Present' : 'Missing')
     if (!token) {
       navigate('/login')
       return
@@ -49,22 +51,28 @@ const Cardetails = () => {
     try {
       setSubmitting(true)
       const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3020'
+      const payload = {
+        carId: id,
+        pickupDate,
+        returnDate
+      }
+      console.log('📤 Sending booking:', payload)
+      
       const res = await fetch(`${apiUrl}/api/booking/create`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify({
-          carId: id,
-          pickupDate,
-          returnDate
-        })
+        body: JSON.stringify(payload)
       })
 
       const data = await res.json()
+      console.log('📥 Response:', data)
+      
       if (data.success) {
-        alert('✨ Booking confirmed!')
+        alert('Booking confirmed!')
+        // Wait a moment for backend to fully persist, then navigate
         setTimeout(() => {
           navigate('/bookings')
         }, 500)
@@ -72,6 +80,7 @@ const Cardetails = () => {
         alert('Booking failed: ' + (data.message || 'Unknown error'))
       }
     } catch (error) {
+      console.error('🔴 Error booking:', error)
       alert('Booking error: ' + error.message)
     } finally {
       setSubmitting(false)
@@ -82,178 +91,133 @@ const Cardetails = () => {
 
   const pricePerDay = car.price_pday ?? car.pricePerDay ?? car.price ?? 0
   const formattedPrice = `${currency}${Number(pricePerDay).toLocaleString()}`
-  const minDate = new Date().toISOString().split('T')[0]
 
   return (
-    <div className='min-h-screen bg-gradient-light dark:bg-dark-900'>
-      <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-16'>
-        
-        {/* Back Button */}
-        <button
-          onClick={() => navigate('/cars')}
-          className='mb-8 flex items-center gap-2 text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 font-semibold transition-colors'
-        >
-          <svg className='w-5 h-5 rotate-180' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
-            <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M9 5l7 7-7 7' />
-          </svg>
-          Back to Cars
-        </button>
+    <div className="px-4 sm:px-6 md:px-12 lg:px-20 mt-8 sm:mt-12 lg:mt-16 pb-12">
+      <button
+        type="button"
+        onClick={() => navigate('/cars')}
+        className="flex items-center gap-2 mb-6 text-gray-600 hover:text-gray-800 transition-colors font-medium text-sm"
+      >
+        <img src={assets.arrow_icon} alt="" className="rotate-180 w-4 h-4" />
+        Back to cars
+      </button>
 
-        <div className='grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-12'>
-          
-          {/* Left - Image & Info */}
-          <div className='lg:col-span-2 space-y-8'>
-            
-            {/* Image Gallery */}
-            <div className='space-y-4'>
-              <div className='relative bg-white dark:bg-dark-800 rounded-2xl overflow-hidden shadow-xl'>
-                <img
-                  src={car.image || 'https://via.placeholder.com/600x400'}
-                  alt={`${car.brand} ${car.model}`}
-                  className='w-full h-96 object-cover'
-                />
-                <div className='absolute top-4 right-4 bg-primary-600 dark:bg-primary-500 text-white px-4 py-2 rounded-full font-bold'>
-                  Popular
-                </div>
-              </div>
-            </div>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-10">
+        {/* LEFT: car images + details */}
+        <div className="lg:col-span-2">
+          <img
+            src={car.image || 'https://via.placeholder.com/500x300'}
+            alt={`${car.brand} ${car.model}`}
+            className="w-full h-48 sm:h-72 lg:h-96 object-cover rounded-lg sm:rounded-xl mb-6 shadow-md"
+          />
 
-            {/* Car Info */}
-            <div className='bg-white dark:bg-dark-800 rounded-2xl shadow-lg p-6 sm:p-8'>
-              <h1 className='text-4xl sm:text-5xl font-bold text-dark-900 dark:text-white mb-4'>
+          <div className="space-y-6 sm:space-y-8">
+            {/* Title */}
+            <div>
+              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold leading-tight">
                 {car.brand} {car.model}
               </h1>
-              <div className='flex flex-wrap gap-4 mb-6'>
-                <span className='inline-block px-4 py-2 bg-primary-100 dark:bg-dark-700 text-primary-700 dark:text-primary-300 rounded-full font-semibold'>
-                  {car.category}
-                </span>
-                <span className='inline-block px-4 py-2 bg-accent-100 dark:bg-dark-700 text-accent-700 dark:text-accent-300 rounded-full font-semibold'>
-                  {car.year}
-                </span>
-                <span className='inline-block px-4 py-2 bg-green-100 dark:bg-dark-700 text-green-700 dark:text-green-300 rounded-full font-semibold'>
-                  ✓ Available
-                </span>
-              </div>
-
-              {car.description && (
-                <p className='text-gray-700 dark:text-gray-300 text-lg leading-relaxed mb-8'>
-                  {car.description}
+              <p className="text-gray-500 text-base sm:text-lg mt-1">
+                {car.category} • {car.year}
+              </p>
+              {car.location && (
+                <p className="mt-2 text-gray-600 text-sm flex items-center gap-2">
+                  <img src={assets.location_icon} alt="" className="h-4 w-4" />
+                  {car.location}
                 </p>
               )}
-
-              {/* Specs Grid */}
-              <div className='grid grid-cols-2 md:grid-cols-4 gap-4'>
-                {[
-                  { icon: '👥', label: 'Seats', value: car.seating_capacity },
-                  { icon: '⛽', label: 'Fuel', value: car.fuel_type },
-                  { icon: '⚙️', label: 'Transmission', value: car.transmission_type },
-                  { icon: '📍', label: 'Location', value: car.location }
-                ].map((spec, i) => (
-                  <div key={i} className='bg-gradient-light dark:bg-dark-700 rounded-xl p-4 text-center border-2 border-primary-200 dark:border-dark-600'>
-                    <div className='text-3xl mb-2'>{spec.icon}</div>
-                    <div className='text-xs text-gray-600 dark:text-gray-400 uppercase font-semibold'>{spec.label}</div>
-                    <div className='text-lg font-bold text-dark-900 dark:text-white mt-1'>{spec.value}</div>
-                  </div>
-                ))}
-              </div>
             </div>
+
+            <div className="border-t border-gray-200" />
+
+            {/* Specs - Responsive Grid */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+              {[
+                { icon: assets.users_icon, text: `${car.seating_capacity} Seats` },
+                { icon: assets.fuel_icon, text: car.fuel_type },
+                { icon: assets.car_icon, text: car.transmission_type },
+                { icon: assets.location_icon, text: car.location },
+              ].map(({ icon, text }, idx) => (
+                <div key={idx} className="flex flex-col items-center bg-gray-50 p-3 sm:p-4 rounded-lg hover:bg-gray-100 transition-colors">
+                  <img src={icon} alt="" className="h-5 w-5 mb-2" />
+                  <span className="text-xs sm:text-sm text-gray-700 text-center line-clamp-2">{text}</span>
+                </div>
+              ))}
+            </div>
+
+            {/* Description */}
+            {car.description && (
+              <div>
+                <h2 className="text-lg sm:text-xl font-semibold mb-3">Description</h2>
+                <p className="text-gray-600 text-sm sm:text-base leading-relaxed">{car.description}</p>
+              </div>
+            )}
 
             {/* Features */}
-            <div className='bg-white dark:bg-dark-800 rounded-2xl shadow-lg p-6 sm:p-8'>
-              <h2 className='text-2xl font-bold text-dark-900 dark:text-white mb-6'>Premium Features</h2>
-              <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
-                {['360° Camera', 'Bluetooth Connectivity', 'Heated Seats', 'Panoramic Sunroof', 'Cruise Control', 'Backup Camera'].map((feature, i) => (
-                  <div key={i} className='flex items-center gap-3 p-3 bg-primary-50 dark:bg-dark-700 rounded-lg'>
-                    <svg className='w-5 h-5 text-primary-600 dark:text-primary-400 flex-shrink-0' fill='currentColor' viewBox='0 0 20 20'>
-                      <path fillRule='evenodd' d='M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z' clipRule='evenodd' />
-                    </svg>
-                    <span className='font-medium text-gray-700 dark:text-gray-300'>{feature}</span>
-                  </div>
+            <div>
+              <h2 className="text-lg sm:text-xl font-semibold mb-3">Features</h2>
+              <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
+                {['360 camera', 'Bluetooth', 'Heated seats', 'Rear view mirror'].map((item) => (
+                  <li key={item} className="flex items-center text-gray-600 text-sm sm:text-base">
+                    <img src={assets.check_icon} className="h-4 w-4 mr-2 flex-shrink-0" alt="" />
+                    {item}
+                  </li>
                 ))}
-              </div>
+              </ul>
             </div>
           </div>
+        </div>
 
-          {/* Right - Booking Card */}
-          <div className='lg:col-span-1'>
-            <div className='sticky top-24 bg-white dark:bg-dark-800 rounded-2xl shadow-2xl p-6 sm:p-8 space-y-6'>
-              
-              {/* Price */}
-              <div className='bg-gradient-primary rounded-xl p-6 text-white text-center'>
-                <div className='text-5xl font-bold'>{formattedPrice}</div>
-                <div className='text-sm opacity-90 mt-1'>per day</div>
-              </div>
-
-              {/* Booking Form */}
-              <form onSubmit={handleBooking} className='space-y-4'>
-                
-                {/* Pickup Date */}
-                <div>
-                  <label className='block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2'>
-                    📅 Pickup Date
-                  </label>
-                  <input
-                    type="date"
-                    value={pickupDate}
-                    onChange={(e) => setPickupDate(e.target.value)}
-                    min={minDate}
-                    className='w-full px-4 py-3 border-2 border-gray-200 dark:border-dark-600 rounded-lg focus:border-primary-500 focus:ring-0 outline-none transition-colors bg-white dark:bg-dark-700 text-gray-900 dark:text-white'
-                    required
-                  />
-                </div>
-
-                {/* Return Date */}
-                <div>
-                  <label className='block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2'>
-                    📅 Return Date
-                  </label>
-                  <input
-                    type="date"
-                    value={returnDate}
-                    onChange={(e) => setReturnDate(e.target.value)}
-                    min={pickupDate || minDate}
-                    className='w-full px-4 py-3 border-2 border-gray-200 dark:border-dark-600 rounded-lg focus:border-primary-500 focus:ring-0 outline-none transition-colors bg-white dark:bg-dark-700 text-gray-900 dark:text-white'
-                    required
-                  />
-                </div>
-
-                {/* Price Calculation */}
-                {pickupDate && returnDate && (
-                  <div className='bg-primary-50 dark:bg-dark-700 border-2 border-primary-200 dark:border-dark-600 rounded-lg p-4'>
-                    <div className='flex justify-between mb-2'>
-                      <span className='text-gray-700 dark:text-gray-300'>
-                        {Math.ceil((new Date(returnDate) - new Date(pickupDate)) / (1000 * 60 * 60 * 24))} days
-                      </span>
-                      <span className='font-bold text-gray-900 dark:text-white'>
-                        {currency}{(Number(pricePerDay) * Math.ceil((new Date(returnDate) - new Date(pickupDate)) / (1000 * 60 * 60 * 24))).toLocaleString()}
-                      </span>
-                    </div>
-                  </div>
-                )}
-
-                {/* Book Button */}
-                <button
-                  type="submit"
-                  disabled={submitting}
-                  className='w-full py-4 bg-gradient-primary hover:shadow-glow disabled:opacity-60 text-white font-bold rounded-xl transition-all hover:scale-105 transform'
-                >
-                  {submitting ? '⏳ Processing...' : '🎯 Book Now'}
-                </button>
-
-                <p className='text-center text-xs text-gray-500 dark:text-gray-400'>
-                  ✓ Free cancellation up to 24 hours before
-                </p>
-              </form>
-
-              {/* Contact */}
-              <div className='border-t-2 border-gray-200 dark:border-dark-700 pt-6'>
-                <p className='text-center text-sm text-gray-600 dark:text-gray-400 mb-4'>Need help?</p>
-                <button className='w-full py-2 border-2 border-primary-600 dark:border-primary-400 text-primary-600 dark:text-primary-400 font-semibold rounded-lg hover:bg-primary-50 dark:hover:bg-dark-700 transition-colors'>
-                  Contact Support
-                </button>
-              </div>
+        {/* RIGHT: booking card */}
+        <div className="lg:col-span-1">
+          <form
+            onSubmit={handleBooking}
+            className="shadow-lg rounded-xl p-5 sm:p-6 space-y-5 text-gray-700 bg-white sticky top-20 lg:top-24"
+          >
+            <div className="flex items-baseline justify-between">
+              <span className="text-2xl sm:text-3xl font-bold text-gray-900">{formattedPrice}</span>
+              <span className="text-sm text-gray-500 font-normal">per day</span>
             </div>
-          </div>
+
+            <div className="border-t border-gray-200" />
+
+            <div className="flex flex-col gap-2">
+              <label htmlFor="pickup-date" className="text-sm font-medium">Pick up date</label>
+              <input
+                type="date"
+                id="pickup-date"
+                value={pickupDate}
+                onChange={(e) => setPickupDate(e.target.value)}
+                className="border border-gray-300 px-3 py-2.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                min={new Date().toISOString().split('T')[0]}
+                required
+              />
+            </div>
+
+            <div className="flex flex-col gap-2">
+              <label htmlFor="return-date" className="text-sm font-medium">Return date</label>
+              <input
+                type="date"
+                id="return-date"
+                value={returnDate}
+                onChange={(e) => setReturnDate(e.target.value)}
+                className="border border-gray-300 px-3 py-2.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                min={pickupDate || new Date().toISOString().split('T')[0]}
+                required
+              />
+            </div>
+
+            <button
+              type="submit"
+              disabled={submitting}
+              className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-semibold py-3 rounded-lg transition-colors cursor-pointer text-base"
+            >
+              {submitting ? 'Booking...' : 'Book now'}
+            </button>
+
+            <p className="text-center text-xs sm:text-sm text-gray-500">No credit card required</p>
+          </form>
         </div>
       </div>
     </div>
