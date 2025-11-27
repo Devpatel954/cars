@@ -10,28 +10,44 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const envPath = path.join(__dirname, '.env');
 
+console.log('=== Environment Configuration ===');
+console.log('Current working directory:', process.cwd());
+console.log('Script directory:', __dirname);
+console.log('NODE_ENV:', process.env.NODE_ENV);
+console.log('.env file path:', envPath);
+console.log('.env file exists:', fs.existsSync(envPath));
+
 if (process.env.NODE_ENV !== 'production' || fs.existsSync(envPath)) {
-  console.log('Current working directory:', process.cwd());
-  console.log('Loading .env from:', envPath);
-  console.log('.env file exists:', fs.existsSync(envPath));
   const result = dotenv.config({ path: envPath });
   if (result.error && process.env.NODE_ENV !== 'production') {
     console.error('Error loading .env:', result.error.message);
   } else if (!result.error) {
-    console.log('Successfully loaded .env file');
+    console.log('✓ Successfully loaded .env file');
   }
 }
+
+// Log all environment variables that start with specific keys (for debugging)
+console.log('Environment variables check:');
+console.log('- MONGODB_URI:', process.env.MONGODB_URI ? '✓ Set' : '✗ NOT SET');
+console.log('- JWT_SECRET:', process.env.JWT_SECRET ? '✓ Set' : '✗ NOT SET');
+console.log('- NODE_ENV:', process.env.NODE_ENV);
+console.log('- PORT:', process.env.PORT);
 
 // Validate required environment variables
 const requiredEnvVars = ['MONGODB_URI', 'JWT_SECRET'];
 const missingEnvVars = requiredEnvVars.filter(varName => !process.env[varName]);
 if (missingEnvVars.length > 0) {
-  console.error(`Missing required environment variables: ${missingEnvVars.join(', ')}`);
+  console.error(`\n❌ ERROR: Missing required environment variables: ${missingEnvVars.join(', ')}`);
+  console.error('\nOn Railway, make sure you have set these variables in your Service Variables:');
+  console.error('  - MONGODB_URI');
+  console.error('  - JWT_SECRET');
+  console.error('  - NODE_ENV=production');
   if (process.env.NODE_ENV === 'production') {
-    console.error('In production, please set these variables in your deployment platform.');
+    console.error('\nExiting because required variables are missing in production mode.');
+    process.exit(1);
   }
 } else {
-  console.log('✓ All required environment variables are set');
+  console.log('✓ All required environment variables are set\n');
 }
 
 import connectDB from "./configs/db.js";
