@@ -8,13 +8,19 @@ const Carcard = ({ car }) => {
   const currency = import.meta.env.VITE_CURRENCY || '$'
   const formattedPrice = `${currency}${Number(car.price_pday || 0).toLocaleString()}`
   const navigate  = useNavigate()
+  
+  // Build full image URL for backend-served assets
+  const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3020'
+  const imageUrl = car.image && car.image.startsWith('/') 
+    ? `${apiUrl}${car.image}` 
+    : car.image
 
   return (
     <div onClick={()=>{navigate(`/car-details/${car._id}`);scrollTo(0,0)}}className="group rounded-xl overflow-hidden shadow-lg hover:-translate-y-1 transition-all duration-300 cursor-pointer bg-white flex flex-col h-full">
    
       <div className="relative aspect-[16/9] overflow-hidden">
         <img
-          src={car.image}
+          src={imageUrl}
           alt={`${car.brand} ${car.model}`}
           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
         />

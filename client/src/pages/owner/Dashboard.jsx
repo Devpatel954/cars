@@ -6,6 +6,11 @@ import Title from '../../components/owner/Title'
 const Dashboard = () => {
   const navigate = useNavigate()
   const currency = import.meta.env.VITE_CURRENCY || '$'
+  const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3020'
+  
+  const getImageUrl = (image) => {
+    return image && image.startsWith('/') ? `${apiUrl}${image}` : image
+  }
 
   const [data, setData] = useState({
     totalCars: 0,
@@ -225,7 +230,7 @@ const Dashboard = () => {
                 {/* Car Image */}
                 <div className="h-48 bg-gray-100 overflow-hidden">
                   <img
-                    src={car.image || assets.car_image1}
+                    src={getImageUrl(car.image) || assets.car_image1}
                     alt={`${car.brand} ${car.model}`}
                     className="w-full h-full object-cover"
                     loading="lazy"

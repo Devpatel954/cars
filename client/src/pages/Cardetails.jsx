@@ -13,6 +13,12 @@ const Cardetails = () => {
   const [returnDate, setReturnDate] = useState('')
 
   const currency = import.meta.env.VITE_CURRENCY || '$'
+  const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3020'
+  
+  // Build full image URL
+  const imageUrl = car && car.image && car.image.startsWith('/') 
+    ? `${apiUrl}${car.image}` 
+    : car?.image
 
   useEffect(() => {
     const fetchCar = async () => {
@@ -107,7 +113,7 @@ const Cardetails = () => {
         {/* LEFT: car images + details */}
         <div className="lg:col-span-2">
           <img
-            src={car.image || 'https://via.placeholder.com/500x300'}
+            src={imageUrl || 'https://via.placeholder.com/500x300'}
             alt={`${car.brand} ${car.model}`}
             className="w-full h-48 sm:h-72 lg:h-96 object-cover rounded-lg sm:rounded-xl mb-6 shadow-md"
           />

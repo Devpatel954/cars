@@ -4,8 +4,13 @@ import Title from '../../components/owner/Title'
 
 const ManageCars = () => {
     const currency = import.meta.env.VITE_CURRENCY || '$'
+    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3020'
     const [cars, setCars] = useState([])
     const [loading, setLoading] = useState(false)
+    
+    const getImageUrl = (image) => {
+        return image && image.startsWith('/') ? `${apiUrl}${image}` : image
+    }
 
     const fetchOwnerCars = async () => {
         try {
@@ -89,7 +94,7 @@ const ManageCars = () => {
                             {cars.map((car) => (
                                 <tr key={car._id} className='border-t border-borderColor hover:bg-gray-50'>
                                     <td className='p-3 flex items-center gap-3'>
-                                        <img src={car.image || assets.car_image1} alt={car.brand} className='h-12 w-12 aspect-square rounded-md object-cover' />
+                                        <img src={getImageUrl(car.image) || assets.car_image1} alt={car.brand} className='h-12 w-12 aspect-square rounded-md object-cover' />
                                         <div>
                                             <p className='font-medium'>{car.brand} {car.model}</p>
                                             <p className='text-xs text-gray-500'>{car.year} • {car.seating_capacity} seats</p>
