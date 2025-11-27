@@ -9,7 +9,7 @@ const ManageCars = () => {
     const [loading, setLoading] = useState(false)
     
     const getImageUrl = (image) => {
-        return image && image.startsWith('/') ? `${apiUrl}${image}` : image
+        return image && String(image).startsWith('/') ? `${apiUrl}${image}` : image
     }
 
     const fetchOwnerCars = async () => {

@@ -11,9 +11,9 @@ const Carcard = ({ car }) => {
   
   // Build full image URL for backend-served assets
   const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3020'
-  const imageUrl = car.image && car.image.startsWith('/') 
+  const imageUrl = car?.image && String(car.image).startsWith('/') 
     ? `${apiUrl}${car.image}` 
-    : car.image
+    : car?.image
 
   return (
     <div onClick={()=>{navigate(`/car-details/${car._id}`);scrollTo(0,0)}}className="group rounded-xl overflow-hidden shadow-lg hover:-translate-y-1 transition-all duration-300 cursor-pointer bg-white flex flex-col h-full">

@@ -16,7 +16,7 @@ const Cardetails = () => {
   const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3020'
   
   // Build full image URL
-  const imageUrl = car && car.image && car.image.startsWith('/') 
+  const imageUrl = car?.image && String(car.image).startsWith('/') 
     ? `${apiUrl}${car.image}` 
     : car?.image
 
