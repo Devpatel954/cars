@@ -75,32 +75,96 @@ try {
   })
   
   const sampleCars = [
-    { brand: 'Toyota', model: 'Camry', year: 2023, category: 'Sedan', seating_capacity: 5, fuel_type: 'Petrol', transmission_type: 'Automatic', price_pday: 50, location: 'New York' },
-    { brand: 'Honda', model: 'Accord', year: 2022, category: 'Sedan', seating_capacity: 5, fuel_type: 'Petrol', transmission_type: 'Automatic', price_pday: 55, location: 'Los Angeles' },
-    { brand: 'BMW', model: 'X5', year: 2023, category: 'SUV', seating_capacity: 7, fuel_type: 'Diesel', transmission_type: 'Automatic', price_pday: 150, location: 'Chicago' },
-    { brand: 'Audi', model: 'A4', year: 2022, category: 'Sedan', seating_capacity: 5, fuel_type: 'Petrol', transmission_type: 'Automatic', price_pday: 120, location: 'Houston' },
-    { brand: 'Mercedes', model: 'C-Class', year: 2023, category: 'Sedan', seating_capacity: 5, fuel_type: 'Diesel', transmission_type: 'Automatic', price_pday: 180, location: 'Miami' },
-    { brand: 'Hyundai', model: 'Tucson', year: 2022, category: 'SUV', seating_capacity: 5, fuel_type: 'Petrol', transmission_type: 'Automatic', price_pday: 70, location: 'Boston' }
-  ]
-  
-  // Reference to car image filenames - these will be served from frontend
-  const carImageNames = [
-    'car_image1.png',
-    'car_image2.png',
-    'car_image3.png',
-    'car_image4.png'
+    { 
+      brand: 'Toyota', 
+      model: 'Camry', 
+      year: 2023, 
+      category: 'Sedan', 
+      seating_capacity: 5, 
+      fuel_type: 'Petrol', 
+      transmission_type: 'Automatic', 
+      price_pday: 50, 
+      location: 'New York',
+      image: 'https://images.unsplash.com/photo-1621007947382-bb3c3994e3fb?w=500&h=400&fit=crop'
+    },
+    { 
+      brand: 'Honda', 
+      model: 'Accord', 
+      year: 2022, 
+      category: 'Sedan', 
+      seating_capacity: 5, 
+      fuel_type: 'Petrol', 
+      transmission_type: 'Automatic', 
+      price_pday: 55, 
+      location: 'Los Angeles',
+      image: 'https://images.unsplash.com/photo-1590362891990-f8ddb41d3fe1?w=500&h=400&fit=crop'
+    },
+    { 
+      brand: 'BMW', 
+      model: 'X5', 
+      year: 2023, 
+      category: 'SUV', 
+      seating_capacity: 7, 
+      fuel_type: 'Diesel', 
+      transmission_type: 'Automatic', 
+      price_pday: 150, 
+      location: 'Chicago',
+      image: 'https://images.unsplash.com/photo-1606611013016-969c19f27081?w=500&h=400&fit=crop'
+    },
+    { 
+      brand: 'Audi', 
+      model: 'A4', 
+      year: 2022, 
+      category: 'Sedan', 
+      seating_capacity: 5, 
+      fuel_type: 'Petrol', 
+      transmission_type: 'Automatic', 
+      price_pday: 120, 
+      location: 'Houston',
+      image: 'https://images.unsplash.com/photo-1606611013016-969c19f27081?w=500&h=400&fit=crop'
+    },
+    { 
+      brand: 'Mercedes', 
+      model: 'C-Class', 
+      year: 2023, 
+      category: 'Sedan', 
+      seating_capacity: 5, 
+      fuel_type: 'Diesel', 
+      transmission_type: 'Automatic', 
+      price_pday: 180, 
+      location: 'Miami',
+      image: 'https://images.unsplash.com/photo-1603584173870-7f3229def826?w=500&h=400&fit=crop'
+    },
+    { 
+      brand: 'Hyundai', 
+      model: 'Tucson', 
+      year: 2022, 
+      category: 'SUV', 
+      seating_capacity: 5, 
+      fuel_type: 'Petrol', 
+      transmission_type: 'Automatic', 
+      price_pday: 70, 
+      location: 'Boston',
+      image: 'https://images.unsplash.com/photo-1605559424843-9e4c3dec1806?w=500&h=400&fit=crop'
+    }
   ]
   
   for (let i = 0; i < sampleCars.length; i++) {
     const car = sampleCars[i]
-    const imageIndex = i % carImageNames.length
-    const imageUrl = `/src/assets/${carImageNames[imageIndex]}`
     
     await Car.create({
       owner: defaultOwner._id,
-      ...car,
+      brand: car.brand,
+      model: car.model,
+      year: car.year,
+      category: car.category,
+      seating_capacity: car.seating_capacity,
+      fuel_type: car.fuel_type,
+      transmission_type: car.transmission_type,
+      price_pday: car.price_pday,
+      location: car.location,
       description: `Premium ${car.brand} ${car.model} - ${car.category} with ${car.seating_capacity} seats. Perfect for comfortable long drives.`,
-      image: imageUrl,
+      image: car.image,
       is_available: true
     })
   }
