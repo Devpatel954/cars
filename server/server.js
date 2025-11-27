@@ -61,7 +61,8 @@ try {
   }
   console.log('Sample cars seeded successfully - 6 cars created with image references')
 } catch (err) {
-  console.log('Seeding cars error:', err.message)
+  console.error('Seeding cars error:', err.message)
+  console.error('Stack:', err.stack)
 }
 
 // CORS Configuration - Allow multiple origins
@@ -92,9 +93,16 @@ app.use('/src/assets', express.static(path.join(process.cwd(), '../client/src/as
 
 app.get('/',(req,res)=>res.send("server is running"))
 
-app.use('/api/user',userRouter);
-app.use('/api/owner',ownerRouter);
-app.use('/api/booking',bookingRouter);
+try {
+  app.use('/api/user',userRouter);
+  console.log('User router loaded');
+  app.use('/api/owner',ownerRouter);
+  console.log('Owner router loaded');
+  app.use('/api/booking',bookingRouter);
+  console.log('Booking router loaded');
+} catch (err) {
+  console.error('Router loading error:', err.message);
+}
 
 // Error handling middleware
 app.use((err, req, res, next) => {
@@ -107,8 +115,30 @@ app.use((err, req, res, next) => {
 });
 
 const PORT = process.env.PORT || 3020;
-app.listen(PORT, () => {
-  console.log(`server running on port ${PORT}`);
+console.log(`Starting server on port ${PORT}...`);
+const server = app.listen(PORT, '0.0.0.0', () => {
+  console.log(`✓ Server listening on port ${PORT}`);
   console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
   console.log(`CORS enabled for multiple origins`);
+});
+
+server.on('error', (err) => {
+  console.error('Server error:', err);
+  if (err.code === 'EADDRINUSE') {
+    console.error(`Port ${PORT} is already in use`);
+  }
+});
+
+server.on('close', () => {
+  console.log('Server closed');
+});
+
+process.stdin.resume();
+
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+});
+
+process.on('uncaughtException', (err) => {
+  console.error('Uncaught Exception:', err);
 });
