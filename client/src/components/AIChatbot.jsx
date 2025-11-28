@@ -89,15 +89,15 @@ const AIChatbot = () => {
       {/* Chat Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className='fixed bottom-6 right-6 bg-primary hover:bg-primary-dull text-white rounded-full w-14 h-14 flex items-center justify-center shadow-lg transition-all duration-300 z-40'
+        className='fixed bottom-6 right-6 bg-blue-600 hover:bg-blue-700 text-white rounded-full w-16 h-16 flex items-center justify-center shadow-2xl transition-all duration-300 z-50 text-2xl border-2 border-blue-500'
         title='AI Assistant'
       >
-        <span className='text-2xl'>💬</span>
+        💬
       </button>
 
       {/* Chat Window */}
       {isOpen && (
-        <div className='fixed bottom-24 right-6 w-96 h-96 bg-white rounded-lg shadow-2xl border border-gray-200 flex flex-col z-40'>
+        <div className='fixed bottom-32 right-6 w-96 h-96 bg-white rounded-lg shadow-2xl border border-gray-300 flex flex-col z-50'>
           {/* Header */}
           <div className='bg-primary text-white p-4 rounded-t-lg flex justify-between items-center'>
             <h3 className='font-semibold'>Car Rental AI Assistant</h3>

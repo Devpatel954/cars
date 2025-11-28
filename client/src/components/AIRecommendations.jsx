@@ -109,7 +109,7 @@ const AIRecommendations = () => {
           <button
             type='submit'
             disabled={loading}
-            className='mt-6 w-full bg-primary hover:bg-primary-dull text-white font-semibold py-3 rounded-lg disabled:opacity-50 transition-all'
+            className='mt-6 w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg disabled:opacity-50 transition-all cursor-pointer'
           >
             {loading ? 'Finding perfect cars...' : 'Get AI Recommendations'}
           </button>
