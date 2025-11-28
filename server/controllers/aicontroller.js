@@ -1,10 +1,24 @@
 import Anthropic from '@anthropic-ai/sdk';
 import Car from '../models/Car.js';
 
-const client = new Anthropic();
+const apiKey = process.env.ANTHROPIC_API_KEY;
+const client = apiKey ? new Anthropic({ apiKey }) : null;
 
 // Store conversation history for context
 const conversationHistory = new Map();
+
+// Mock AI response for testing without API key
+const getMockAIResponse = (message) => {
+  const responses = [
+    "I'd recommend checking our featured vehicles section! We have great options for budget-conscious travelers.",
+    "Based on your needs, a Toyota Camry would be perfect - it's reliable, comfortable, and great on fuel!",
+    "Our luxury sedans like the Mercedes C-Class offer premium comfort for special occasions.",
+    "For family trips, our SUVs like the BMW X5 provide excellent space and safety features.",
+    "I can help you find the perfect car! What's your budget and preferred vehicle type?",
+    "Looking for something specific? Tell me about your travel plans and I'll suggest the best options."
+  ];
+  return responses[Math.floor(Math.random() * responses.length)];
+};
 
 export const chatWithAI = async (req, res) => {
     try {
@@ -26,13 +40,17 @@ export const chatWithAI = async (req, res) => {
             content: message
         });
 
-        // Get system prompt with car data context
-        const cars = await Car.find().lean();
-        const carContext = cars.map(car => 
-            `${car.brand} ${car.model} (${car.year}) - ${car.category} - $${car.price_pday}/day - ${car.location}`
-        ).join('\n');
+        let assistantMessage;
 
-        const systemPrompt = `You are a helpful car rental assistant. You help customers find the perfect car for their needs.
+        // Use Claude if API key is available, otherwise use mock response
+        if (client && apiKey && apiKey !== 'your_anthropic_api_key_here') {
+            try {
+                const cars = await Car.find().lean();
+                const carContext = cars.map(car => 
+                    `${car.brand} ${car.model} (${car.year}) - ${car.category} - $${car.price_pday}/day - ${car.location}`
+                ).join('\n');
+
+                const systemPrompt = `You are a helpful car rental assistant. You help customers find the perfect car for their needs.
 Available cars:
 ${carContext}
 
@@ -43,15 +61,21 @@ Help customers by:
 
 Be conversational and helpful. When recommending cars, always mention the price, location, and key features.`;
 
-        // Call Claude API
-        const response = await client.messages.create({
-            model: 'claude-3-5-sonnet-20241022',
-            max_tokens: 1024,
-            system: systemPrompt,
-            messages: history
-        });
+                const response = await client.messages.create({
+                    model: 'claude-3-5-sonnet-20241022',
+                    max_tokens: 1024,
+                    system: systemPrompt,
+                    messages: history
+                });
 
-        const assistantMessage = response.content[0].text;
+                assistantMessage = response.content[0].text;
+            } catch (apiError) {
+                console.error('Claude API error:', apiError.message);
+                assistantMessage = getMockAIResponse(message);
+            }
+        } else {
+            assistantMessage = getMockAIResponse(message);
+        }
 
         // Add assistant response to history
         history.push({
@@ -67,7 +91,8 @@ Be conversational and helpful. When recommending cars, always mention the price,
         res.json({
             success: true,
             message: assistantMessage,
-            conversationId: userId
+            conversationId: userId,
+            usingMockAI: !client || !apiKey || apiKey === 'your_anthropic_api_key_here'
         });
 
     } catch (error) {
@@ -103,27 +128,39 @@ export const getRecommendations = async (req, res) => {
             });
         }
 
-        // Use Claude to create personalized recommendation message
-        const carDescriptions = recommendedCars.map((car, idx) => 
-            `${idx + 1}. ${car.brand} ${car.model} (${car.year}) - ${car.category} - $${car.price_pday}/day - Seats: ${car.seating_capacity} - Location: ${car.location}`
-        ).join('\n');
+        let recommendationMessage;
 
-        const response = await client.messages.create({
-            model: 'claude-3-5-sonnet-20241022',
-            max_tokens: 500,
-            messages: [{
-                role: 'user',
-                content: `Based on these car rental options, provide a brief personalized recommendation message:\n${carDescriptions}`
-            }]
-        });
+        // Use Claude if API key is available, otherwise use simple message
+        if (client && apiKey && apiKey !== 'your_anthropic_api_key_here') {
+            try {
+                const carDescriptions = recommendedCars.map((car, idx) => 
+                    `${idx + 1}. ${car.brand} ${car.model} (${car.year}) - ${car.category} - $${car.price_pday}/day - Seats: ${car.seating_capacity} - Location: ${car.location}`
+                ).join('\n');
 
-        const recommendationMessage = response.content[0].text;
+                const response = await client.messages.create({
+                    model: 'claude-3-5-sonnet-20241022',
+                    max_tokens: 500,
+                    messages: [{
+                        role: 'user',
+                        content: `Based on these car rental options, provide a brief personalized recommendation message:\n${carDescriptions}`
+                    }]
+                });
+
+                recommendationMessage = response.content[0].text;
+            } catch (apiError) {
+                console.error('Claude API error:', apiError.message);
+                recommendationMessage = `Found ${recommendedCars.length} great cars matching your criteria!`;
+            }
+        } else {
+            recommendationMessage = `Found ${recommendedCars.length} great cars matching your criteria! Check them out below.`;
+        }
 
         res.json({
             success: true,
             cars: recommendedCars,
             recommendationMessage,
-            count: recommendedCars.length
+            count: recommendedCars.length,
+            usingMockAI: !client || !apiKey || apiKey === 'your_anthropic_api_key_here'
         });
 
     } catch (error) {
