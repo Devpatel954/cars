@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Route, Routes, useLocation, Navigate } from 'react-router-dom'
 
 import Navbar from './components/Navbar'
+import AIChatbot from './components/AIChatbot'
 import Home from './pages/Home'
 import Cardetails from './pages/Cardetails'
 import Cars from './pages/Cars'
@@ -23,6 +24,9 @@ const App = () => {
     <>
       {showlogin && <Login setShowLogin={setShowLogin} />}
       {!isOwnerPath && <Navbar setShowLogin={setShowLogin} />}
+      
+      {/* AI Chatbot - Always Available */}
+      <AIChatbot />
 
       <Routes>
         <Route path="/" element={<Home />} />
