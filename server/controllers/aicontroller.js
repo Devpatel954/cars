@@ -4,10 +4,10 @@ import Car from '../models/Car.js';
 const apiKey = process.env.GEMINI_API_KEY;
 const client = apiKey ? new GoogleGenAI({ apiKey }) : null;
 
-// Store conversation history for context
+// 
 const conversationHistory = new Map();
 
-// Mock AI response for testing without API key
+
 const getMockAIResponse = (message) => {
   const responses = [
     "I'd recommend checking our featured vehicles section! We have great options for budget-conscious travelers.",
@@ -28,13 +28,11 @@ export const chatWithAI = async (req, res) => {
             return res.status(400).json({ success: false, message: 'Message and userId required' });
         }
 
-        // Get conversation history for this user
         if (!conversationHistory.has(userId)) {
             conversationHistory.set(userId, []);
         }
         const history = conversationHistory.get(userId);
 
-        // Add user message to history
         history.push({
             role: 'user',
             content: message
@@ -42,7 +40,7 @@ export const chatWithAI = async (req, res) => {
 
         let assistantMessage;
 
-        // Use Gemini if API key is available, otherwise use mock response
+    
         if (client && apiKey && apiKey !== 'your_gemini_api_key_here') {
             try {
                 const cars = await Car.find().lean();
