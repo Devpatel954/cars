@@ -47,28 +47,33 @@ export const chatWithAI = async (req, res) => {
             try {
                 const cars = await Car.find().lean();
                 const carContext = cars.map(car => 
-                    `${car.brand} ${car.model} (${car.year}) - ${car.category} - $${car.price_pday}/day - ${car.location}`
+                    `${car.brand} ${car.model} (${car.year}) - ${car.category} - $${car.price_pday}/day - Seats: ${car.seating_capacity} - Location: ${car.location}`
                 ).join('\n');
 
                 const systemPrompt = `You are a helpful car rental assistant. You help customers find the perfect car for their needs.
-Available cars:
+
+AVAILABLE CARS:
 ${carContext}
 
-Help customers by:
-1. Recommending cars based on their budget, needs, and preferences
-2. Answering questions about car features, pricing, and availability
-3. Suggesting the best car for their use case
+INSTRUCTIONS:
+1. Recommend cars based on budget, needs, and preferences
+2. Always mention the price, location, and key features when recommending
+3. Be conversational and helpful
+4. If asked about specific cars, provide accurate details from the list above
+5. Help with booking inquiries and answer questions about car features
 
-Be conversational and helpful. When recommending cars, always mention the price, location, and key features.`;
+Always respond in a friendly, professional manner.`;
 
-                const fullMessage = `${systemPrompt}\n\nUser: ${message}`;
+                const fullMessage = `${systemPrompt}\n\nCustomer Question: ${message}`;
 
                 const response = await client.models.generateContent({
-                    model: 'gemini-pro',
-                    contents: fullMessage
+                    model: 'gemini-1.5-flash',
+                    contents: {
+                        parts: [{ text: fullMessage }]
+                    }
                 });
 
-                assistantMessage = response.text;
+                assistantMessage = response.response.text();
             } catch (apiError) {
                 console.error('Gemini API error:', apiError.message);
                 assistantMessage = getMockAIResponse(message);
@@ -137,12 +142,16 @@ export const getRecommendations = async (req, res) => {
                     `${idx + 1}. ${car.brand} ${car.model} (${car.year}) - ${car.category} - $${car.price_pday}/day - Seats: ${car.seating_capacity} - Location: ${car.location}`
                 ).join('\n');
 
+                const prompt = `You are a car rental recommendation assistant. Based on these car rental options, provide a brief personalized recommendation message (2-3 sentences) that highlights why these cars are great choices:\n\nCARS:\n${carDescriptions}`;
+
                 const response = await client.models.generateContent({
-                    model: 'gemini-pro',
-                    contents: `Based on these car rental options, provide a brief personalized recommendation message:\n${carDescriptions}`
+                    model: 'gemini-1.5-flash',
+                    contents: {
+                        parts: [{ text: prompt }]
+                    }
                 });
 
-                recommendationMessage = response.text;
+                recommendationMessage = response.response.text();
             } catch (apiError) {
                 console.error('Gemini API error:', apiError.message);
                 recommendationMessage = `Found ${recommendedCars.length} great cars matching your criteria!`;
