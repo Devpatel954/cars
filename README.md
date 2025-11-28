@@ -1,6 +1,6 @@
-# Car Rental Application
+# AI Based Car Rental Application
 
-A full-stack car rental platform built with React, Node.js, Express, and MongoDB.
+A full-stack car rental platform built with React, Node.js, Express, MongoDB, HuggingFace, Transformers
 
 ## Project Overview
 
