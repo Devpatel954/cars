@@ -1,8 +1,8 @@
-import OpenAI from 'openai';
+import { GoogleGenAI } from '@google/genai';
 import Car from '../models/Car.js';
 
-const apiKey = process.env.OPENAI_API_KEY;
-const client = apiKey ? new OpenAI({ apiKey }) : null;
+const apiKey = process.env.GEMINI_API_KEY;
+const client = apiKey ? new GoogleGenAI({ apiKey }) : null;
 
 // Store conversation history for context
 const conversationHistory = new Map();
@@ -42,8 +42,8 @@ export const chatWithAI = async (req, res) => {
 
         let assistantMessage;
 
-        // Use OpenAI if API key is available, otherwise use mock response
-        if (client && apiKey && apiKey !== 'your_openai_api_key_here') {
+        // Use Gemini if API key is available, otherwise use mock response
+        if (client && apiKey && apiKey !== 'your_gemini_api_key_here') {
             try {
                 const cars = await Car.find().lean();
                 const carContext = cars.map(car => 
@@ -61,21 +61,16 @@ Help customers by:
 
 Be conversational and helpful. When recommending cars, always mention the price, location, and key features.`;
 
-                const response = await client.chat.completions.create({
-                    model: 'gpt-3.5-turbo',
-                    max_tokens: 1024,
-                    messages: [
-                        {
-                            role: 'system',
-                            content: systemPrompt
-                        },
-                        ...history
-                    ]
+                const fullMessage = `${systemPrompt}\n\nUser: ${message}`;
+
+                const response = await client.models.generateContent({
+                    model: 'gemini-pro',
+                    contents: fullMessage
                 });
 
-                assistantMessage = response.choices[0].message.content;
+                assistantMessage = response.text;
             } catch (apiError) {
-                console.error('OpenAI API error:', apiError.message);
+                console.error('Gemini API error:', apiError.message);
                 assistantMessage = getMockAIResponse(message);
             }
         } else {
@@ -97,7 +92,7 @@ Be conversational and helpful. When recommending cars, always mention the price,
             success: true,
             message: assistantMessage,
             conversationId: userId,
-            usingMockAI: !client || !apiKey || apiKey === 'your_anthropic_api_key_here'
+            usingMockAI: !client || !apiKey || apiKey === 'your_gemini_api_key_here'
         });
 
     } catch (error) {
@@ -135,28 +130,21 @@ export const getRecommendations = async (req, res) => {
 
         let recommendationMessage;
 
-        // Use OpenAI if API key is available, otherwise use simple message
-        if (client && apiKey && apiKey !== 'your_openai_api_key_here') {
+        // Use Gemini if API key is available, otherwise use simple message
+        if (client && apiKey && apiKey !== 'your_gemini_api_key_here') {
             try {
                 const carDescriptions = recommendedCars.map((car, idx) => 
                     `${idx + 1}. ${car.brand} ${car.model} (${car.year}) - ${car.category} - $${car.price_pday}/day - Seats: ${car.seating_capacity} - Location: ${car.location}`
                 ).join('\n');
 
-                const response = await client.chat.completions.create({
-                    model: 'gpt-3.5-turbo',
-                    max_tokens: 500,
-                    messages: [{
-                        role: 'system',
-                        content: 'You are a car rental recommendation assistant. Provide brief, personalized recommendations based on the cars shown.'
-                    }, {
-                        role: 'user',
-                        content: `Based on these car rental options, provide a brief personalized recommendation message:\n${carDescriptions}`
-                    }]
+                const response = await client.models.generateContent({
+                    model: 'gemini-pro',
+                    contents: `Based on these car rental options, provide a brief personalized recommendation message:\n${carDescriptions}`
                 });
 
-                recommendationMessage = response.choices[0].message.content;
+                recommendationMessage = response.text;
             } catch (apiError) {
-                console.error('OpenAI API error:', apiError.message);
+                console.error('Gemini API error:', apiError.message);
                 recommendationMessage = `Found ${recommendedCars.length} great cars matching your criteria!`;
             }
         } else {
@@ -168,7 +156,7 @@ export const getRecommendations = async (req, res) => {
             cars: recommendedCars,
             recommendationMessage,
             count: recommendedCars.length,
-            usingMockAI: !client || !apiKey || apiKey === 'your_anthropic_api_key_here'
+            usingMockAI: !client || !apiKey || apiKey === 'your_gemini_api_key_here'
         });
 
     } catch (error) {

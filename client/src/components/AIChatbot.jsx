@@ -99,11 +99,11 @@ const AIChatbot = () => {
       {isOpen && (
         <div className='fixed bottom-32 right-6 w-96 h-96 bg-white rounded-lg shadow-2xl border border-gray-300 flex flex-col z-50'>
           {/* Header */}
-          <div className='bg-primary text-white p-4 rounded-t-lg flex justify-between items-center'>
+          <div className='bg-blue-600 text-white p-4 rounded-t-lg flex justify-between items-center'>
             <h3 className='font-semibold'>Car Rental AI Assistant</h3>
             <button
               onClick={() => setIsOpen(false)}
-              className='text-white hover:bg-primary-dull rounded-full w-6 h-6 flex items-center justify-center'
+              className='text-white hover:bg-blue-700 rounded-full w-6 h-6 flex items-center justify-center'
             >
               ✕
             </button>
@@ -119,7 +119,7 @@ const AIChatbot = () => {
                 <div
                   className={`max-w-xs px-4 py-2 rounded-lg ${
                     msg.sender === 'user'
-                      ? 'bg-primary text-white rounded-br-none'
+                      ? 'bg-blue-600 text-white rounded-br-none'
                       : 'bg-gray-200 text-gray-800 rounded-bl-none'
                   }`}
                 >
@@ -147,13 +147,13 @@ const AIChatbot = () => {
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
               placeholder='Ask me anything...'
-              className='flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:border-primary'
+              className='flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600'
               disabled={loading}
             />
             <button
               type='submit'
               disabled={loading || !inputValue.trim()}
-              className='bg-primary hover:bg-primary-dull text-white rounded-lg px-4 py-2 text-sm disabled:opacity-50'
+              className='bg-blue-600 hover:bg-blue-700 text-white rounded-lg px-4 py-2 text-sm disabled:opacity-50 cursor-pointer font-semibold'
             >
               Send
             </button>
