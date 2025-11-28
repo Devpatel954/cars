@@ -25,6 +25,7 @@
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.20.1",
     "multer": "^2.0.2",
+    "onnxruntime-node": "^1.23.2",
     "openai": "^6.9.1"
   },
   "devDependencies": {

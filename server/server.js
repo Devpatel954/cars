@@ -52,7 +52,7 @@ import connectDB from "./configs/db.js";
 import userRouter from "./routes/userRoutes.js";
 import ownerRouter from "./routes/ownerroutes.js";
 import bookingRouter from "./routes/bookingRoutes.js";
-import aiRouter from "./routes/aiRoutes.js";
+import nlpRouter from "./routes/nlpRoutes.js";
 import Car from './models/Car.js'
 import User from './models/User.js'
 
@@ -212,8 +212,8 @@ try {
   console.log('Owner router loaded');
   app.use('/api/booking',bookingRouter);
   console.log('Booking router loaded');
-  app.use('/api/ai',aiRouter);
-  console.log('AI router loaded');
+  app.use('/api/ai',nlpRouter);
+  console.log('NLP AI router loaded - No API keys required!');
 } catch (err) {
   console.error('Router loading error:', err.message);
 }
